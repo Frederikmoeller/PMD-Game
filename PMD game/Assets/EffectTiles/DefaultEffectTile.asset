@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a69fd12448fa5e043a0c57b88ac38d1a, type: 3}
+  m_Name: DefaultEffectTile
+  m_EditorClassIdentifier: Assembly-CSharp::EventTileEffect
+  EffectName: 
+  Description: 
+  TileColor: {r: 0, g: 1, b: 1, a: 1}
+  EffectSprite: {fileID: 0}
+  VisualEffectPrefab: {fileID: 0}
+  AffectsPlayer: 1
+  AffectsEnemies: 1
+  HealthChange: 0
+  StatusEffect: 0
+  StatusDuration: 0
+  AttackBonus: 0
+  DefenseBonus: 0
+  SpeedBonus: 0
+  Duration: 0
+  TeleportsToRandomFloor: 0
+  SpawnsItem: 0
+  ItemPrefab: {fileID: 0}
+  RevealsHiddenTiles: 0
+  RevealRadius: 3
+  ActivationSound: {fileID: 0}
+  ActivationMessage: 

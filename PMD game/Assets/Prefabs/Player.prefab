@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8583484013939318803}
   - component: {fileID: 8578217786733322698}
   - component: {fileID: 3672775128730908593}
-  - component: {fileID: 2295520924044317982}
   - component: {fileID: 3794089612966732284}
   - component: {fileID: 1304004406568348352}
   - component: {fileID: -7398136360451865360}
@@ -110,43 +109,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12338498581f31044a16dc759f60e3b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  MaxHealth: 100
-  CurrentHealth: 100
-  Attack: 10
-  Defense: 5
-  Speed: 5
-  Level: 1
+  GridX: 0
+  GridY: 0
+  Type: 0
+  stats:
+    MaxHealth: 100
+    CurrentHealth: 100
+    Attack: 10
+    Defense: 5
+    Speed: 5
+    Level: 1
+    ExperienceValue: 0
+    StatusDuration: 0
+  HeldItem: {fileID: 0}
   Experience: 0
   ExperienceToNextLevel: 100
-  IsPoisoned: 0
-  IsParalyzed: 0
-  StatusEffectDuration: 0
-  OnHealthChanged:
+  Inventory: []
+  MaxInventorySize: 20
+  OnPlayerHealthChanged:
     m_PersistentCalls:
       m_Calls: []
-  OnDamageTaken:
+  OnPlayerDamageTaken:
     m_PersistentCalls:
       m_Calls: []
   OnPlayerDeath:
     m_PersistentCalls:
       m_Calls: []
-  OnLevelUp:
+  OnPlayerLevelUp:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &2295520924044317982
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8289092667448155494}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96fc171b31123194b9880c5cc020a29c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GridEntity
-  GridX: 7
-  GridY: 12
 --- !u!114 &3794089612966732284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6cc87dc6a388df46b743d7c6b8cdb28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  freeMoveSpeed: 5
+  MoveSpeed: 5
 --- !u!114 &1304004406568348352
 MonoBehaviour:
   m_ObjectHideFlags: 0

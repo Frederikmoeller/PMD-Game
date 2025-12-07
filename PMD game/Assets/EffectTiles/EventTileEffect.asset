@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a69fd12448fa5e043a0c57b88ac38d1a, type: 3}
-  m_Name: DefaultEffectTile
+  m_Name: EventTileEffect
   m_EditorClassIdentifier: Assembly-CSharp::EventTileEffect
-  EffectName: Test Effect
+  EffectName: 
   Description: 
   TileColor: {r: 0, g: 1, b: 1, a: 1}
   EffectSprite: {fileID: 0}
@@ -20,7 +20,6 @@ MonoBehaviour:
   AffectsPlayer: 1
   AffectsEnemies: 1
   HealthChange: 0
-  StatusDuration: 0
   AttackBonus: 0
   DefenseBonus: 0
   SpeedBonus: 0

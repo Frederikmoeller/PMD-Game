@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SaveSystem
 {
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.All)]
     public class SaveFieldAttribute : Attribute
     {
         

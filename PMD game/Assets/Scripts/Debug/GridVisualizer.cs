@@ -6,7 +6,7 @@ public class GridDebugger : MonoBehaviour
 {
     [Header("References")]
     public DungeonGenerator generator;
-    public DungeonRenderer renderer;
+    public DungeonRenderer DungeonRenderer;
     
     [Header("Test Tiles")]
     public TileBase testFloorTile;
@@ -33,7 +33,7 @@ public class GridDebugger : MonoBehaviour
         // Step 1: Generate grid
         if (generator == null)
         {
-            generator = FindObjectOfType<DungeonGenerator>();
+            generator = FindFirstObjectByType<DungeonGenerator>();
             if (generator == null)
             {
                 Debug.LogError("No DungeonGenerator found in scene!");
@@ -47,7 +47,7 @@ public class GridDebugger : MonoBehaviour
         AnalyzeGrid();
         
         // Step 3: Basic render (bypass complex systems)
-        if (renderer != null && testFloorTile != null && testWallTile != null)
+        if (DungeonRenderer != null && testFloorTile != null && testWallTile != null)
         {
             SimpleRender();
         }
@@ -109,21 +109,21 @@ public class GridDebugger : MonoBehaviour
     {
         Debug.Log("Starting simple render...");
         
-        if (renderer.FloorTilemap == null)
+        if (DungeonRenderer.FloorTilemap == null)
         {
             Debug.LogError("FloorTilemap is null!");
             return;
         }
         
-        if (renderer.WallTilemap == null)
+        if (DungeonRenderer.WallTilemap == null)
         {
             Debug.LogError("WallTilemap is null!");
             return;
         }
         
         // Clear tilemaps
-        renderer.FloorTilemap.ClearAllTiles();
-        renderer.WallTilemap.ClearAllTiles();
+        DungeonRenderer.FloorTilemap.ClearAllTiles();
+        DungeonRenderer.WallTilemap.ClearAllTiles();
         
         int tilesPlaced = 0;
         
@@ -136,12 +136,12 @@ public class GridDebugger : MonoBehaviour
                 
                 if (tile.Type == TileType.Wall)
                 {
-                    renderer.WallTilemap.SetTile(pos, testWallTile);
+                    DungeonRenderer.WallTilemap.SetTile(pos, testWallTile);
                     tilesPlaced++;
                 }
                 else if (tile.Type != TileType.Empty)
                 {
-                    renderer.FloorTilemap.SetTile(pos, testFloorTile);
+                    DungeonRenderer.FloorTilemap.SetTile(pos, testFloorTile);
                     tilesPlaced++;
                 }
             }
@@ -150,8 +150,8 @@ public class GridDebugger : MonoBehaviour
         Debug.Log($"Placed {tilesPlaced} tiles");
         
         // Force tilemap update
-        renderer.FloorTilemap.RefreshAllTiles();
-        renderer.WallTilemap.RefreshAllTiles();
+        DungeonRenderer.FloorTilemap.RefreshAllTiles();
+        DungeonRenderer.WallTilemap.RefreshAllTiles();
     }
     
     void OnDrawGizmos()

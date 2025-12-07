@@ -96,13 +96,13 @@ public class PrefabSpawner : MonoBehaviour
 
         for (int i = Parent.childCount; i >= 0; i--)
         {
-            if (Application.isPlaying)
+            if (Application.isPlaying && Parent.childCount > 0)
             {
                 Destroy(Parent.GetChild(i).gameObject);
             }
             else
             {
-                DestroyImmediate(Parent.GetChild(i).gameObject);
+                //DestroyImmediate(Parent.GetChild(i).gameObject);
             }
         }
     }

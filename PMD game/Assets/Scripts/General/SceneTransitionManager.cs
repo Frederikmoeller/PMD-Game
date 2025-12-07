@@ -60,7 +60,7 @@ public class SceneTransitionManager : MonoBehaviour
         PlayerPersist playerPersist = _player.GetComponent<PlayerPersist>();
         if (playerPersist != null)
         {
-            playerPersist.RestoreForTown();
+            //playerPersist.RestoreForTown();
         }
         
         // Load town scene

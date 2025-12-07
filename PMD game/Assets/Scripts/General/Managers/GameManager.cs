@@ -197,7 +197,7 @@ public class GameManager : MonoBehaviour
         // Pause turn-based systems if needed
         if (TurnManager.Instance != null)
         {
-            TurnManager.Instance.playersTurn = false;
+            TurnManager.Instance.PlayersTurn = false;
         }
     }
     
@@ -208,7 +208,7 @@ public class GameManager : MonoBehaviour
         // Resume turn-based systems
         if (TurnManager.Instance != null)
         {
-            TurnManager.Instance.playersTurn = true;
+            TurnManager.Instance.PlayersTurn = true;
         }
     }
     

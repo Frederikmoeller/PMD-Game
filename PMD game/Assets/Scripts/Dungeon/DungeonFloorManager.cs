@@ -88,10 +88,9 @@ public class DungeonFloorManager : MonoBehaviour
         Vector2Int start = _grid.GetSpawnPoint();
         Debug.Log($"Player spawn point: {start}");
         
-        // Position player
         _player.transform.position = new Vector3(start.x + 0.5f, start.y + 0.5f, 0);
 
-        GridEntity playerEntity = _player.GetComponent<GridEntity>();
+        PlayerStats playerEntity = _player.GetComponent<PlayerStats>();
         if (playerEntity != null)
         {
             playerEntity.GridX = start.x;

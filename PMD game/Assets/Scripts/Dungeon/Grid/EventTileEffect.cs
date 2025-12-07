@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "EventTileEffect", menuName = "Scriptable Objects/EventTileEffect")]
@@ -20,9 +21,8 @@ public class EventTileEffect : ScriptableObject
     public int HealthChange = 0; // Positive for healing, negative for damage
     
     [Header("Status Effects")]
-    public StatusEffectType StatusEffect = StatusEffectType.None;
-    public int StatusDuration = 0;
-    
+    public StatusEffect StatusEffect;
+
     [Header("Stat Modifiers (Temporary)")]
     public int AttackBonus = 0;
     public int DefenseBonus = 0;
@@ -39,6 +39,13 @@ public class EventTileEffect : ScriptableObject
     [Header("Audio/Visual Feedback")]
     public AudioClip ActivationSound;
     public string ActivationMessage = "";
+}
+
+[Serializable]
+public class StatusEffect
+{
+    public StatusEffectType StatusEffectType;
+    public int Duration;
 }
 
 public enum StatusEffectType

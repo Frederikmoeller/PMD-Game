@@ -18,6 +18,8 @@ public class DungeonGenerator : MonoBehaviour
         Debug.Log("=== DUNGEON GENERATION STARTED ===");
         if (Seed != 0) Random.InitState(Seed);
         Grid = new DungeonGrid(Width, Height);
+        print(Width);
+        print(Height);
         
         //Fill Walls
         for (int x = 0; x < Width; x++)
@@ -117,6 +119,8 @@ public class DungeonGenerator : MonoBehaviour
             tries++;
             int x = Random.Range(1, Width - 1);
             int y = Random.Range(1, Height - 1);
+            Grid.Tiles[x, y].X = x;
+            Grid.Tiles[x, y].Y = y;
             if (Grid.Tiles[x, y].Type == TileType.Floor)
             {
                 Grid.Tiles[x, y].Type = type;

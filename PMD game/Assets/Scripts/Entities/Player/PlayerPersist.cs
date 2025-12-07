@@ -20,10 +20,7 @@ public class PlayerPersist : MonoBehaviour
         // Get or add required components
         if (GetComponent<GridEntity>() == null)
             gameObject.AddComponent<GridEntity>();
-            
-        if (GetComponent<PlayerStats>() == null)
-            gameObject.AddComponent<PlayerStats>();
-            
+
         if (GetComponent<PlayerController>() == null)
             gameObject.AddComponent<PlayerController>();
             
@@ -34,21 +31,7 @@ public class PlayerPersist : MonoBehaviour
         if (!gameObject.CompareTag("Player"))
             gameObject.tag = "Player";
     }
-    
-    // Call this when returning to town
-    public void RestoreForTown()
-    {
-        PlayerStats stats = GetComponent<PlayerStats>();
-        if (stats != null)
-        {
-            // Full heal
-            stats.CurrentHealth = stats.MaxHealth;
-            // Clear status effects
-            stats.ClearStatusEffects();
-            Debug.Log("Player restored for town");
-        }
-    }
-    
+
     // Call this before entering dungeon
     public void PrepareForDungeon()
     {

@@ -4,18 +4,18 @@ using System.Collections.Generic;
 
 namespace DialogueSystem.Data
 {
-[Serializable]
-public class DialogueLine
-{
-    public string Guid;           // unique ID for editor/serialization use
-    public Vector2 Position;      // editor position (not used at runtime except for saving)
-    public string SpeakerId;
-    public string TextKey;
-    public DialogueChoice[] Choices;
-    public string NextNodeId;
-}
+    [Serializable]
+    public class DialogueLine
+    {
+        public string Guid; // unique ID for editor/serialization use
+        public Vector2 Position; // editor position (not used at runtime except for saving)
+        public string SpeakerId;
+        public string TextKey;
+        public DialogueChoice[] Choices;
+        public string NextNodeId;
+    }
 
-[Serializable]
+    [Serializable]
     public class DialogueChoice
     {
         public string TextKey;

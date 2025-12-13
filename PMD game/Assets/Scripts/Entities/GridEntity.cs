@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-
+using DialogueSystem;
 
 public class GridEntity : MonoBehaviour, IEffectTileHandler
 {
@@ -33,6 +33,17 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
     public bool UseSmoothMovement = true; // Can be turned off for decor items
     public bool IsMoving = false;
     public Vector3 MoveTarget;
+    
+    // Add these attack system fields
+    [Header("Attack System")]
+    public float AttackCooldown = 0.5f;
+    public float AttackAnimationDuration = 0.3f;
+    public float AttackPushbackDistance = 0.3f;
+    
+    // Add these PRIVATE attack fields (not in header since they're internal)
+    private bool _canAttack = true;
+    private bool _isAttacking = false;
+    private Coroutine _currentAttackCoroutine;
     
     private System.Action _onMoveComplete;
     
@@ -72,7 +83,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
 
     public virtual bool TryMove(int dx, int dy, System.Action onComplete = null)
     {
-        Debug.Log($"GridEntity.TryMove({dx},{dy}) called by {name}");
+        //Debug.Log($"GridEntity.TryMove({dx},{dy}) called by {name}");
 
         // Only work in grid-based mode
         if (GameManager.Instance?.IsGridBased != true) return false;
@@ -81,7 +92,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         int targetX = GridX + dx;
         int targetY = GridY + dy;
 
-        Debug.Log($"Moving from {GridX},{GridY} to {targetX},{targetY}");
+        //Debug.Log($"Moving from {GridX},{GridY} to {targetX},{targetY}");
 
         if (!Grid.InBounds(targetX, targetY)) return false;
 
@@ -92,7 +103,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         if (targetTile.Occupant != null && targetTile.Occupant.BlocksMovement && targetTile.Occupant != this)
         {
             Debug.Log($"Tile occupied by {targetTile.Occupant.name}");
-            return TryInteractWithOccupant(targetTile.Occupant, dx, dy);
+            return false;
         }
 
         // DIAGONAL: Additional corner cutting check
@@ -134,7 +145,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
             onComplete?.Invoke();
         }
     
-        Debug.Log($"Movement successful. New position: {GridX},{GridY}");
+        //Debug.Log($"Movement successful. New position: {GridX},{GridY}");
         return true;
     }
 
@@ -191,18 +202,18 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         if (GameManager.Instance == null) return false;
         if (GameManager.Instance.IsGamePaused) return false;
         if (GameManager.Instance.IsInCutscene) return false;
+        if (DialogueManager.Instance.IsDialogueActive) return false;
         if (!GameManager.Instance.IsGridBased) return true;
         if (TurnManager.Instance == null) return false;
-        if (!TurnManager.Instance.PlayersTurn) return false;
-    
+
         // Check status effects
         if (Stats.CurrentStatus != null)
         {
             // Assuming Stats.CurrentStatus is List<StatusEffect> or similar
             foreach (var status in Stats.CurrentStatus)
             {
-                if (status.StatusEffectType == StatusEffectType.Sleep || 
-                    status.StatusEffectType == StatusEffectType.Paralysis)
+                if (status.Type == StatusEffectType.Sleep || 
+                    status.Type == StatusEffectType.Paralysis)
                 {
                     return false;
                 }
@@ -211,6 +222,14 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
     
         return true;
     }
+    
+    // MODIFIED: Also check if currently attacking
+    public bool CanAttackThisFrame()
+    {
+        return IsAlive && _canAttack && !_isAttacking;
+    }
+    
+    public bool IsCurrentlyAttacking => _isAttacking;
     
     public bool CanMoveInDirection(int dx, int dy)
     {
@@ -263,10 +282,8 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
     public void TakeDamage(int damage, GridEntity source = null, bool isPowerAttack = true)
     {
         if (!IsAlive) return;
-        
-        // Use the new damage calculation
-        stats.TakeDamage(damage, isPowerAttack);
-        OnDamageTaken?.Invoke(damage);
+
+        stats.CurrentHealth -= damage;
         OnHealthChanged?.Invoke(stats.CurrentHealth);
         
         Debug.Log($"{name} took {damage} damage. Health: {stats.CurrentHealth}/{stats.MaxHealth}");
@@ -284,6 +301,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         Debug.Log($"{name} healed {amount}. Health: {stats.CurrentHealth}/{stats.MaxHealth}");
     }
     
+    // MODIFIED: Attack method now uses unified system
     public void Attack(GridEntity target, bool isPowerAttack = true, float movePower = 1.0f)
     {
         if (!IsAlive || !target.IsAlive) return;
@@ -301,36 +319,97 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         // Pass the attack type information
         target.TakeDamage(damage, this, isPowerAttack);
         
-        // Trigger combat animation
-        StartCoroutine(AttackAnimation(target.transform.position));
+        GameLogger.LogCombat(stats.Name, "attacked", target.stats.Name, damage);
     }
-
-    private IEnumerator AttackAnimation(Vector3 targetPos)
+    
+    // NEW: Unified attack method with animation and cooldown
+    public IEnumerator PerformAttack(GridEntity target, System.Action onAttackComplete = null)
+    {
+        if (!IsAlive || !target.IsAlive || !_canAttack || _isAttacking)
+        {
+            onAttackComplete?.Invoke();
+            yield break;
+        }
+        
+        _isAttacking = true;
+        _canAttack = false;
+        
+        Debug.Log($"{name} performing attack on {target.name}");
+        
+        // Play attack animation
+        yield return StartCoroutine(PlayAttackAnimation(target.transform.position));
+        
+        // Calculate and apply damage
+        Attack(target);
+        
+        // Wait for any additional effects
+        yield return new WaitForSeconds(0.1f);
+        
+        _isAttacking = false;
+        
+        // Start cooldown
+        StartCoroutine(AttackCooldownRoutine());
+        
+        onAttackComplete?.Invoke();
+    }
+    
+    // MODIFIED: Replaces old AttackAnimation method
+    private IEnumerator PlayAttackAnimation(Vector3 targetPosition)
     {
         Vector3 startPos = transform.position;
-        Vector3 attackPos = Vector3.Lerp(startPos, targetPos, 0.3f);
+        Vector3 attackPos = Vector3.Lerp(startPos, targetPosition, AttackPushbackDistance);
         
-        float duration = 0.15f;
+        float halfDuration = AttackAnimationDuration / 2f;
         float elapsed = 0f;
         
-        while (elapsed < duration)
+        // Lunge forward
+        while (elapsed < halfDuration)
         {
-            float t = elapsed / duration;
+            float t = elapsed / halfDuration;
             transform.position = Vector3.Lerp(startPos, attackPos, t);
             elapsed += Time.deltaTime;
             yield return null;
         }
         
+        // Return to position
         elapsed = 0f;
-        while (elapsed < duration)
+        while (elapsed < halfDuration)
         {
-            float t = elapsed / duration;
+            float t = elapsed / halfDuration;
             transform.position = Vector3.Lerp(attackPos, startPos, t);
             elapsed += Time.deltaTime;
             yield return null;
         }
         
         transform.position = startPos;
+    }
+    
+    private IEnumerator AttackCooldownRoutine()
+    {
+        yield return new WaitForSeconds(AttackCooldown);
+        _canAttack = true;
+    }
+    
+    // NEW: Simple attack queue method
+    public void QueueAttack(GridEntity target)
+    {
+        if (_currentAttackCoroutine != null)
+        {
+            StopCoroutine(_currentAttackCoroutine);
+        }
+        
+        _currentAttackCoroutine = StartCoroutine(PerformAttack(target, OnAttackComplete));
+    }
+    
+    private void OnAttackComplete()
+    {
+        _currentAttackCoroutine = null;
+        
+        // If this entity is the player, notify turn manager
+        if (Type == EntityType.Player)
+        {
+            TurnManager.Instance?.PlayerPerformedAction();
+        }
     }
     
     protected virtual void OnDeathInternal(GridEntity killer = null)
@@ -441,6 +520,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         if (tile.Type == TileType.Effect && tile.TileEffect != null)
         {
             OnSteppedOnEffect(tile);
+            GameLogger.LogAction("Stepped on effect tile");
         }
         
         if (tile.Type == TileType.Stairs)
@@ -508,6 +588,42 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         return false;
     }
     
+    // MODIFIED: Now uses the new PerformAttack method
+    public bool TryAttackAdjacent(GridEntity target, int dx, int dy)
+    {
+        if (target == null || !IsAlive || !target.IsAlive) return false;
+    
+        // Check if adjacent
+        int distance = Mathf.Max(Mathf.Abs(GridX - target.GridX), 
+            Mathf.Abs(GridY - target.GridY));
+    
+        if (distance != 1) return false; // Must be adjacent
+    
+        // Queue the attack
+        if (CanAttackThisFrame())
+        {
+            TurnManager.Instance?.QueueAttack(this, target);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public bool IsAdjacentTo(GridEntity other)
+    {
+        if (other == null || Grid == null) return false;
+        
+        // Check if on the same grid
+        if (Grid != other.Grid) return false;
+        
+        // Calculate Chebyshev distance (for 8-direction adjacency)
+        int dx = Mathf.Abs(GridX - other.GridX);
+        int dy = Mathf.Abs(GridY - other.GridY);
+        
+        // Adjacent if within 1 tile in any direction (including diagonals)
+        return dx <= 1 && dy <= 1 && (dx != 0 || dy != 0);
+    }
+    
     // IEffectTileHandler implementation
     public void ApplyTileEffect(EventTileEffect effect)
     {
@@ -524,11 +640,11 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         if (effect.HealthChange != 0)
         {
             if (effect.HealthChange > 0) Heal(effect.HealthChange);
-            else TakeDamage(-effect.HealthChange);
+            else stats.TakeStatusDamage(-effect.HealthChange);
         }
     
         // Status effects - using new structure
-        if (effect.StatusEffect.StatusEffectType != StatusEffectType.None && effect.StatusEffect.Duration > 0)
+        if (effect.StatusEffect.Type != StatusEffectType.None && effect.StatusEffect.Duration > 0)
         {
             ApplyStatusEffect(effect.StatusEffect);
         }
@@ -558,7 +674,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
     public virtual void ApplyStatusEffect(StatusEffect effect)
     {
         // Default: apply effect normally
-        Stats.ApplyStatusEffect(effect.StatusEffectType, effect.Duration);
+        Stats.ApplyStatusEffect(effect.Type, effect.Duration);
     }
     
     public bool TryTeleport(int targetX, int targetY)

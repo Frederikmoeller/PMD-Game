@@ -16,7 +16,8 @@ public class PlayerStats : GridEntity  // <-- INHERIT from GridEntity
     public UnityEvent<int> OnPlayerDamageTaken; // damage amount
     public UnityEvent OnPlayerDeath;
     public UnityEvent<int> OnPlayerLevelUp; // new level
-    
+    public UnityEvent<int> OnPlayerManaChanged;
+
     [Header("Player Preset")]
     public CharacterPresetSO PlayerPreset;
     

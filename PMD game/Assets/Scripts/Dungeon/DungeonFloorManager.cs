@@ -18,6 +18,9 @@ public class DungeonFloorManager : MonoBehaviour
     private DungeonGrid _grid;
     private GameObject _player;
     
+    [Header("Enemy Spawning")]
+    public EnemySpawner EnemySpawner;
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -60,9 +63,21 @@ public class DungeonFloorManager : MonoBehaviour
         // Step 3: Render tiles & spawn objects
         Renderer.Render(_grid);
         Spawner.SpawnFromGrid(_grid);
+        
+        // NEW: Spawn enemies
+        if (EnemySpawner != null)
+        {
+            EnemySpawner.SpawnEnemiesForFloor(_grid);
+        }
 
         // Step 4: Place player
         PlacePlayer();
+        
+        // Notify UIManager about new floor for minimap
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.SetupMinimap();
+        }
 
         OnFloorStart?.Invoke();
     }

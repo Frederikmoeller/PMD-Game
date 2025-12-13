@@ -98,7 +98,7 @@ namespace DialogueSystem
             
             StartDialogue(StartAsset, useSavedState);
         }
-        
+
         public void ContinueDialogue()
         {
             if (_runner != null)

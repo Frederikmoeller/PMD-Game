@@ -131,6 +131,12 @@ public class GameManager : MonoBehaviour
     }
     
     // ===== PUBLIC HELPERS =====
+
+    public void LoadDungeon(string dungeonName)
+    {
+        CurrentDungeon = dungeonName;
+        SceneManager.LoadScene("Dungeon");
+    }
     
     public bool IsInDungeon()
     {
@@ -156,6 +162,7 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Floor {floorNumber} reached");
         // Trigger story events based on floor
         CheckFloorStoryEvents(floorNumber);
+        UIManager.Instance.UpdateDungeonInfo(CurrentDungeon, CurrentFloor);
     }
 
     private void CheckFloorStoryEvents(int floor)
@@ -187,29 +194,17 @@ public class GameManager : MonoBehaviour
     {
         IsGamePaused = pause;
         Time.timeScale = pause ? 0f : 1f;
-        // Show/hide pause menu
+        //UIManager.Instance.TogglePauseMenu();
     }
     
     public void StartCutscene()
     {
         IsInCutscene = true;
-
-        // Pause turn-based systems if needed
-        if (TurnManager.Instance != null)
-        {
-            TurnManager.Instance.PlayersTurn = false;
-        }
     }
     
     public void EndCutscene()
     {
         IsInCutscene = false;
-
-        // Resume turn-based systems
-        if (TurnManager.Instance != null)
-        {
-            TurnManager.Instance.PlayersTurn = true;
-        }
     }
     
     public void GameOver(bool win = false)

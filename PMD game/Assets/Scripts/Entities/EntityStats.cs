@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,12 +12,38 @@ public enum EntityType
     Decoration
 }
 
-[System.Serializable]
+[Serializable]
+public enum StatusEffectType
+{
+    None,
+    Poison,
+    Burn,
+    Paralysis,
+    Sleep,
+    Buff_Attack,
+    Buff_Defense,
+    Buff_Speed,
+    Debuff_Attack,
+    Debuff_Defense,
+    Debuff_Speed
+}
+
+[Serializable]
+public class StatusEffect
+{
+    public StatusEffectType Type;
+    public int Duration;
+}
+
+[Serializable]
 public class EntityStats
 {
+    public string Name;
     // Primary Stats
     public int MaxHealth = 100;
     public int CurrentHealth = 100;
+    public int MaxMana = 100;
+    public int CurrentMana = 100;
     
     // Offensive Stats
     public int Power = 10;       // Renamed from Attack
@@ -59,10 +86,10 @@ public class EntityStats
         Debug.Log($"Took {actualDamage} damage (reduced from {damage} by {defense} defense)");
     }
     
-    public void TakeRawDamage(int damage)
+    public void TakeStatusDamage(int damage)
     {
         // For status effects, traps, etc. that bypass defense
-        CurrentHealth -= damage;
+        CurrentHealth -= Mathf.RoundToInt(MaxHealth * damage * 0.01f);
     }
     
     public void Heal(int amount)
@@ -75,7 +102,7 @@ public class EntityStats
         if (duration <= 0) return;
     
         // Check if already has this status
-        var existingEffect = CurrentStatus.FirstOrDefault(s => s.StatusEffectType == type);
+        var existingEffect = CurrentStatus.FirstOrDefault(s => s.Type == type);
     
         if (existingEffect != null)
         {
@@ -85,7 +112,7 @@ public class EntityStats
         else
         {
             // Add new status
-            CurrentStatus.Add(new StatusEffect { StatusEffectType = type, Duration = duration });
+            CurrentStatus.Add(new StatusEffect { Type = type, Duration = duration });
         }
     
         Debug.Log($"Player now has {type} for {duration} turns");
@@ -106,15 +133,15 @@ public class EntityStats
             var status = CurrentStatus[i];
         
             // Apply damage from damaging status effects
-            switch (status.StatusEffectType)
+            switch (status.Type)
             {
                 case StatusEffectType.Poison:
-                    TakeDamage(5);
+                    TakeStatusDamage(5);
                     Debug.Log($"takes poison damage!");
                     break;
                 
                 case StatusEffectType.Burn:
-                    TakeDamage(3);
+                    TakeStatusDamage(3);
                     Debug.Log($"takes burn damage!");
                     break;
             }
@@ -126,10 +153,10 @@ public class EntityStats
             if (status.Duration <= 0)
             {
                 CurrentStatus.RemoveAt(i);
-                Debug.Log($"{status.StatusEffectType} has worn off");
+                Debug.Log($"{status.Type} has worn off");
             
                 // Handle status removal
-                if (status.StatusEffectType == StatusEffectType.Paralysis)
+                if (status.Type == StatusEffectType.Paralysis)
                 {
                     //OnParalysisWoreOff();
                 }
@@ -140,13 +167,13 @@ public class EntityStats
     // Check for specific status effects
     public bool HasStatusEffect(StatusEffectType type)
     {
-        return CurrentStatus.Any(s => s.StatusEffectType == type);
+        return CurrentStatus.Any(s => s.Type == type);
     }
     
     // Remove a specific status effect
     public void RemoveStatusEffect(StatusEffectType type)
     {
-        var effect = CurrentStatus.FirstOrDefault(s => s.StatusEffectType == type);
+        var effect = CurrentStatus.FirstOrDefault(s => s.Type == type);
         if (effect != null)
         {
             CurrentStatus.Remove(effect);

@@ -113,15 +113,30 @@ MonoBehaviour:
   GridY: 0
   Type: 0
   stats:
+    Name: 
     MaxHealth: 100
     CurrentHealth: 100
-    Attack: 10
-    Defense: 5
-    Speed: 5
+    MaxMana: 100
+    CurrentMana: 100
+    Power: 10
+    Focus: 10
+    Resilience: 5
+    Willpower: 5
+    Fortune: 5
     Level: 1
+    CurrentStatus: []
     ExperienceValue: 0
-    StatusDuration: 0
+    HealthGrowth: 1.1
+    PowerGrowth: 1.08
+    FocusGrowth: 1.08
+    ResilienceGrowth: 1.07
+    WillpowerGrowth: 1.07
+    FortuneGrowth: 1.05
   HeldItem: {fileID: 0}
+  MoveSpeed: 5
+  UseSmoothMovement: 1
+  IsMoving: 0
+  MoveTarget: {x: 0, y: 0, z: 0}
   Experience: 0
   ExperienceToNextLevel: 100
   Inventory: []
@@ -138,6 +153,10 @@ MonoBehaviour:
   OnPlayerLevelUp:
     m_PersistentCalls:
       m_Calls: []
+  OnPlayerManaChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  PlayerPreset: {fileID: 0}
 --- !u!114 &3794089612966732284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150,7 +169,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6cc87dc6a388df46b743d7c6b8cdb28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  MoveSpeed: 5
+  SprintMultiplier: 2
+  FreeSprintSpeed: 10
+  FreeMoveSpeed: 5
+  GridMoveSpeed: 5
+  InteractionRange: 1.5
 --- !u!114 &1304004406568348352
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,7 +234,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0

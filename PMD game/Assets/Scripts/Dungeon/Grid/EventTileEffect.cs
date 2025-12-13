@@ -40,27 +40,3 @@ public class EventTileEffect : ScriptableObject
     public AudioClip ActivationSound;
     public string ActivationMessage = "";
 }
-
-[Serializable]
-public class StatusEffect
-{
-    public StatusEffectType StatusEffectType;
-    public int Duration;
-}
-
-public enum StatusEffectType
-{
-    None,
-    Poison,
-    Paralysis,
-    Burn,
-    Sleep,
-    Confusion,
-    SpeedBoost,
-    DefenseBoost,
-    AttackBoost,
-    Slow,
-    Weakening,
-    DefenseDown,
-    StatusClear,
-}

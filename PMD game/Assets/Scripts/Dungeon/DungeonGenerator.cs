@@ -11,6 +11,7 @@ public class DungeonGenerator : MonoBehaviour
     public int Seed = 0;
     
     [HideInInspector] public DungeonGrid Grid;
+    [HideInInspector] public List<RectInt> GeneratedRooms = new(); // Add this
 
     [ContextMenu("Generate")]
     public DungeonGrid Generate()

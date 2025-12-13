@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using UnityEditor.Build.Content;
 using UnityEngine;
 
 [Serializable]
@@ -94,10 +95,13 @@ public class PrefabSpawner : MonoBehaviour
     {
         if (Parent == null) Parent = transform;
 
-        for (int i = Parent.childCount; i >= 0; i--)
+        print(Parent.childCount);
+        for (int i = Parent.childCount - 1; i >= 0; i--)
         {
+            print(Parent.GetChild(i).gameObject.name + i);
             if (Application.isPlaying && Parent.childCount > 0)
             {
+                print(Parent.name);
                 Destroy(Parent.GetChild(i).gameObject);
             }
             else
@@ -105,5 +109,6 @@ public class PrefabSpawner : MonoBehaviour
                 //DestroyImmediate(Parent.GetChild(i).gameObject);
             }
         }
+        print(Parent.childCount);
     }
 }

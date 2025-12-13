@@ -24,6 +24,25 @@ public class DungeonGrid
             }
         }
     }
+    
+    // Add this public method
+    public List<RectInt> GetRooms()
+    {
+        return new List<RectInt>(rooms); // Return a copy
+    }
+    
+    // Add this method to get room at position
+    public RectInt? GetRoomAtPosition(int x, int y)
+    {
+        foreach (var room in rooms)
+        {
+            if (room.Contains(new Vector2Int(x, y)))
+            {
+                return room;
+            }
+        }
+        return null;
+    }
 
     public bool InBounds(int x, int y) => x >= 0 && y >= 0 && x < Width && y < Height;
 

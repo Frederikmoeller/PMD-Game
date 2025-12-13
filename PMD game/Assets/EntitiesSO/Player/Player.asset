@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7a6608d7997a9b4d9f22c4f45be338b, type: 3}
+  m_Name: Player
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterPresetSO
+  CharacterName: Player
+  BaseStats:
+    Name: Player1
+    MaxHealth: 100
+    CurrentHealth: 100
+    MaxMana: 0
+    CurrentMana: 0
+    Power: 10
+    Focus: 10
+    Resilience: 5
+    Willpower: 5
+    Fortune: 5
+    Level: 1
+    CurrentStatus: []
+    ExperienceValue: 25
+    HealthGrowth: 1.1
+    PowerGrowth: 1.08
+    FocusGrowth: 1.08
+    ResilienceGrowth: 1.07
+    WillpowerGrowth: 1.07
+    FortuneGrowth: 1.05
+  Archetype: {fileID: 0}
+  HealthGrowth: 1.1
+  PowerGrowth: 1.08
+  FocusGrowth: 1.08
+  ResilienceGrowth: 1.07
+  WillpowerGrowth: 1.07
+  FortuneGrowth: 1.05
+  ExperienceValue: 25
+  PossibleDrops: []
+  SpawnWeight: 1

@@ -5,17 +5,186 @@ using UnityEngine;
 public class TurnManager : MonoBehaviour
 {
     public static TurnManager Instance { get; private set; }
-
-    public bool PlayersTurn = true;
+    
     private List<Enemy> _enemies = new List<Enemy>();
-
+    private Queue<AttackData> _attackQueue = new Queue<AttackData>();
+    private bool _isProcessingAttacks = false;
+    
+    private PlayerController _playerController;
+    private GridEntity _playerEntity;
+    private bool _playerIsFrozen = false;
+    
     void Awake() => Instance = this;
-
-    public void OnPlayerMoved()
+    
+    void Start()
     {
-        PlayersTurn = false;
-        StartCoroutine(EnemyTurnRoutine());
+        _playerController = FindObjectOfType<PlayerController>();
+        if (_playerController != null)
+        {
+            _playerEntity = _playerController.GetComponent<GridEntity>();
+        }
     }
+    
+    void Update()
+    {
+        if (!_isProcessingAttacks && _attackQueue.Count > 0)
+        {
+            StartCoroutine(ProcessAttackQueue());
+        }
+    }
+    
+    // NEW: Unified method for ANY player action
+    public void PlayerPerformedAction(bool wasAttack = false)
+    {
+        Debug.Log($"Player performed action: {(wasAttack ? "Attack" : "Move")}");
+        
+        // Freeze player during enemy responses
+        FreezePlayer(true);
+        
+        if (wasAttack)
+        {
+            // Player attacked - check for enemy counter-attacks
+            CheckForEnemyCounterAttacks();
+        }
+        else
+        {
+            // Player moved - check for enemy attacks
+            CheckForEnemyAttacks();
+        }
+        
+        // If no attacks queued, unfreeze player immediately
+        if (_attackQueue.Count == 0)
+        {
+            Debug.Log("No enemy responses, player can continue");
+            FreezePlayer(false);
+        }
+        
+        // Always move enemies (except those attacking)
+        MoveAllEnemies();
+    }
+    
+    private void CheckForEnemyAttacks()
+    {
+        Debug.Log("Checking for enemy attacks after player move");
+        
+        foreach (Enemy enemy in _enemies)
+        {
+            if (enemy != null && enemy.IsAlive && enemy.CanAttackThisFrame())
+            {
+                if (enemy.IsAdjacentTo(_playerEntity))
+                {
+                    QueueAttack(enemy, _playerEntity);
+                    Debug.Log($"{enemy.name} will attack player (adjacent)");
+                }
+            }
+        }
+    }
+    
+    private void CheckForEnemyCounterAttacks()
+    {
+        Debug.Log("Checking for enemy counter-attacks after player attack");
+        
+        foreach (Enemy enemy in _enemies)
+        {
+            if (enemy != null && enemy.IsAlive && enemy.CanAttackThisFrame())
+            {
+                if (enemy.IsAdjacentTo(_playerEntity))
+                {
+                    QueueAttack(enemy, _playerEntity);
+                    Debug.Log($"{enemy.name} will counter-attack");
+                }
+            }
+        }
+    }
+    
+    private void MoveAllEnemies()
+    {
+        Debug.Log("Moving all enemies");
+        
+        foreach (Enemy enemy in _enemies)
+        {
+            if (enemy != null && enemy.IsAlive && enemy.CanMoveThisFrame() && !enemy.IsCurrentlyAttacking)
+            {
+                // Don't move if they're already attacking
+                if (!IsEnemyInAttackQueue(enemy))
+                {
+                    StartCoroutine(enemy.MoveSimultaneously());
+                }
+            }
+        }
+    }
+    
+    private bool IsEnemyInAttackQueue(Enemy enemy)
+    {
+        foreach (AttackData attack in _attackQueue)
+        {
+            if (attack.Attacker == enemy)
+                return true;
+        }
+        return false;
+    }
+    
+    // Queue any attack
+    public void QueueAttack(GridEntity attacker, GridEntity target)
+    {
+        if (attacker == null || target == null || !attacker.IsAlive || !target.IsAlive)
+            return;
+        
+        _attackQueue.Enqueue(new AttackData
+        {
+            Attacker = attacker,
+            Target = target
+        });
+        
+        Debug.Log($"Attack queued: {attacker.name} -> {target.name}");
+    }
+    
+    private IEnumerator ProcessAttackQueue()
+    {
+        _isProcessingAttacks = true;
+        
+        Debug.Log($"=== PROCESSING ATTACK QUEUE: {_attackQueue.Count} ATTACKS ===");
+        
+        while (_attackQueue.Count > 0)
+        {
+            AttackData attack = _attackQueue.Dequeue();
+            
+            if (attack.Attacker != null && attack.Attacker.IsAlive && 
+                attack.Target != null && attack.Target.IsAlive)
+            {
+                Debug.Log($"Executing: {attack.Attacker.name} -> {attack.Target.name}");
+                yield return attack.Attacker.StartCoroutine(
+                    attack.Attacker.PerformAttack(attack.Target)
+                );
+                
+                // Small delay between attacks
+                yield return new WaitForSeconds(0.2f);
+            }
+        }
+        
+        Debug.Log("=== ALL ATTACKS COMPLETE ===");
+        _isProcessingAttacks = false;
+        
+        // Update status effects after all attacks
+        UpdateAllStatusEffects();
+        
+        // Unfreeze player after all attacks are done
+        FreezePlayer(false);
+    }
+    
+    private void FreezePlayer(bool freeze)
+    {
+        _playerIsFrozen = freeze;
+        
+        if (_playerController != null)
+        {
+            _playerController.SetCanMove(!freeze);
+            Debug.Log(freeze ? "Player frozen" : "Player unfrozen");
+        }
+    }
+    
+    public bool IsPlayerFrozen => _playerIsFrozen;
+    public bool IsProcessingAttacks => _isProcessingAttacks;
     
     public void RegisterEnemy(Enemy enemy)
     {
@@ -26,44 +195,36 @@ public class TurnManager : MonoBehaviour
     public void UnregisterEnemy(Enemy enemy)
     {
         _enemies.Remove(enemy);
+        // Clean up attack queue
+        var newQueue = new Queue<AttackData>();
+        while (_attackQueue.Count > 0)
+        {
+            AttackData attack = _attackQueue.Dequeue();
+            if (attack.Attacker != enemy && attack.Target != enemy)
+                newQueue.Enqueue(attack);
+        }
+        _attackQueue = newQueue;
     }
-
-    private IEnumerator EnemyTurnRoutine()
+    
+    private void UpdateAllStatusEffects()
     {
-        // Get all alive enemies
-        List<Enemy> aliveEnemies = new List<Enemy>();
+        if (_playerEntity != null)
+        {
+            _playerEntity.UpdateStatusEffects();
+        }
+        
         foreach (Enemy enemy in _enemies)
         {
-            var enemyEntity = enemy.GetComponent<GridEntity>();
-            if (enemyEntity != null && enemyEntity.IsAlive)
+            if (enemy != null && enemy.IsAlive)
             {
-                aliveEnemies.Add(enemy);
+                enemy.UpdateStatusEffects();
             }
         }
-
-        Debug.Log($"Enemy turn started. {aliveEnemies.Count} enemies will act.");
-
-        // Process each enemy turn
-        foreach (Enemy enemy in aliveEnemies)
-        {
-            if (enemy == null) continue;
-            
-            enemy.TakeTurn();
-            
-            // Wait for enemy to finish moving
-            var entity = enemy.GetComponent<GridEntity>();
-            if (entity != null)
-            {
-                while (entity.IsMoving)
-                {
-                    yield return null;
-                }
-            }
-            
-            yield return new WaitForSeconds(0.1f); // Small delay between enemies
-        }
-
-        PlayersTurn = true;
-        Debug.Log("Enemy turn complete. Player's turn.");
+    }
+    
+    private struct AttackData
+    {
+        public GridEntity Attacker;
+        public GridEntity Target;
     }
 }

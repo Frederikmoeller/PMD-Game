@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using DialogueSystem.Data;
 using DialogueSystem.Localization;
@@ -5,7 +6,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 namespace DialogueSystem.UI
 {
@@ -13,6 +14,7 @@ namespace DialogueSystem.UI
     {
         [Header("UI Components")]
         [SerializeField] private TextMeshProUGUI dialogueText;
+        [SerializeField] private TextMeshProUGUI speakerText;
         [SerializeField] private Transform choicesContainer;
         [SerializeField] private Button choiceButtonPrefab;
         [SerializeField] private GameObject continueIndicator;
@@ -20,9 +22,7 @@ namespace DialogueSystem.UI
         [Header("Typewriter Settings")]
         [SerializeField] private bool useTypewriterEffect = true;
         [SerializeField] private TypewriterEffect typewriterEffect;
-        
-        private DialogueManager _dialogueManager;
-        
+
         private void Awake()
         { 
             // Setup TypewriterEffect if needed
@@ -56,12 +56,14 @@ namespace DialogueSystem.UI
                 Debug.LogError("DialogueUI: Cannot show null line");
                 return;
             }
-            
+
+            string speakerString = LocalizationSystem.Get(line.SpeakerId); 
             // Get the localized text
             string dialogueString = LocalizationSystem.Get(line.TextKey);
             
             // Ensure text is active
             dialogueText.gameObject.SetActive(true);
+            speakerText.gameObject.SetActive(true);
             
             if (useTypewriterEffect && typewriterEffect != null)
             {
@@ -76,10 +78,10 @@ namespace DialogueSystem.UI
             {
                 // Show text immediately
                 dialogueText.text = dialogueString;
+                speakerText.text = speakerString;
                 
                 // Show continue indicator immediately
-                if (continueIndicator != null)
-                    continueIndicator.SetActive(true);
+                OnTypingComplete();
             }
         }
         
@@ -88,11 +90,75 @@ namespace DialogueSystem.UI
             // Show continue indicator when typing is done
             if (continueIndicator != null)
                 continueIndicator.SetActive(true);
+            StartCoroutine(ContinueIndicatorBlinking());
+        }
+
+        IEnumerator ContinueIndicatorBlinking()
+        {
+            var imageColor = continueIndicator.GetComponent<Image>().color;
+            while (continueIndicator.activeSelf)
+            {
+                yield return new WaitForSeconds(.7f);
+                imageColor.a = 0;
+                yield return new WaitForSeconds(.7f);
+                imageColor.a = 255;
+            }
         }
 
         public void ShowChoices(List<DialogueChoice> choices)
         {
+            if (choicesContainer == null || choiceButtonPrefab == null)
+            {
+                Debug.LogWarning("DialogueUI: Choices container or button prefab not set up");
+                return;
+            }
+    
+            // Clear existing choices
+            foreach (Transform child in choicesContainer)
+            {
+                Destroy(child.gameObject);
+            }
+    
+            // Show container
+            choicesContainer.gameObject.SetActive(true);
+    
+            // Hide continue indicator during choice selection
+            if (continueIndicator != null)
+                continueIndicator.SetActive(false);
+    
+            // Create choice buttons
+            for (int i = 0; i < choices.Count; i++)
+            {
+                var choice = choices[i];
+                var buttonGO = Instantiate(choiceButtonPrefab, choicesContainer);
+        
+                // Get the Button component (UnityEngine.UI.Button)
+                var button = buttonGO.GetComponent<Button>();
+                var textComponent = buttonGO.GetComponentInChildren<TextMeshProUGUI>();
+        
+                if (textComponent != null)
+                {
+                    string choiceText = LocalizationSystem.Get(choice.TextKey);
+                    textComponent.text = choiceText;
+                }
+        
+                // Store the index in a local variable to avoid closure issues
+                int choiceIndex = i;
+        
+                // Add click event
+                button.onClick.AddListener(() =>
+                {
+                    // Inform dialogue runner of choice selection
+                    if (DialogueManager.Instance != null && DialogueManager.Instance.GetRunner() != null)
+                    {
+                        var runner = DialogueManager.Instance.GetRunner();
+                        runner.Choose(choiceIndex);
+                    }
             
+                    // Hide choices
+                    choicesContainer.gameObject.SetActive(false);
+                });
+            }
         }
 
         public void HideAll()

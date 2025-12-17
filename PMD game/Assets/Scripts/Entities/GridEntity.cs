@@ -14,39 +14,49 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
     public bool BlocksMovement => Type == EntityType.Enemy || Type == EntityType.NPC || Type == EntityType.Player;
     
     // Stats System (UNIFIED)
-    [SerializeField] private EntityStats stats = new EntityStats();
+    [SerializeField] protected EntityStats stats = new EntityStats();
     public EntityStats Stats => stats;
     public bool IsAlive => stats.IsAlive;
     
     // Inventory (for players/enemies that can hold items)
-    public ItemData HeldItem = null; // For enemies carrying items
+    public ItemData HeldItem = null;
     
-    // Events (can be used by PlayerController/Enemy for UI/feedback)
-    public System.Action<int> OnHealthChanged; // current health
-    public System.Action<int> OnDamageTaken; // damage amount
+    // Events
+    public System.Action<int> OnHealthChanged;
+    public System.Action<int> OnDamageTaken;
     public System.Action OnDeath;
-    public System.Action<GridEntity> OnItemPickedUp; // item picked up
+    public System.Action<GridEntity> OnItemPickedUp;
     
-    // Add these movement fields
     [Header("Movement Settings")]
     public float MoveSpeed = 5f;
-    public bool UseSmoothMovement = true; // Can be turned off for decor items
-    public bool IsMoving = false;
-    public Vector3 MoveTarget;
+    public bool UseSmoothMovement = true;
+    public bool IsMoving { get; private set; }
     
-    // Add these attack system fields
     [Header("Attack System")]
     public float AttackCooldown = 0.5f;
     public float AttackAnimationDuration = 0.3f;
     public float AttackPushbackDistance = 0.3f;
     
-    // Add these PRIVATE attack fields (not in header since they're internal)
     private bool _canAttack = true;
     private bool _isAttacking = false;
     private Coroutine _currentAttackCoroutine;
-    
     private System.Action _onMoveComplete;
+    private Vector3 _moveTarget;
     
+    [Header("Player Preset")]
+    public CharacterPresetSO CharacterPreset;
+
+    public virtual void Start()
+    {
+        Debug.Log($"[{name}] GridEntity.Start() called");
+        Debug.Log($"[{name}] CharacterPreset: {(CharacterPreset != null ? CharacterPreset.name : "NULL")}");
+    
+        InitializeFromPreset();
+    
+        Debug.Log($"[{name}] After init - stats.Name: '{stats.Name}'");
+        Debug.Log($"[{name}] After init - gameObject.name: '{gameObject.name}'");
+    }
+
     private void Update()
     {
         if (UseSmoothMovement && IsMoving)
@@ -55,74 +65,93 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         }
     }
     
-    void UpdateMovement()
+    // Make this VIRTUAL so child classes can override
+    protected virtual void InitializeFromPreset()
     {
-        if (!IsMoving) return;
-        
-        transform.position = Vector3.MoveTowards(transform.position, MoveTarget, MoveSpeed * Time.deltaTime);
-        
-        if (Vector3.Distance(transform.position, MoveTarget) < 0.01f)
+        Debug.Log($"[{name}] InitializeFromPreset() called");
+    
+        if (CharacterPreset == null)
         {
-            transform.position = MoveTarget;
-            IsMoving = false;
-            
-            // Handle tile interactions after movement completes
-            if (Grid != null)
+            Debug.LogWarning($"[{name}] No CharacterPreset assigned!");
+        
+            // Fallback
+            if (string.IsNullOrEmpty(stats.Name))
             {
-                var tile = Grid.Tiles[GridX, GridY];
-                HandleTileInteractions(tile);
+                stats.Name = gameObject.name;
+                Debug.Log($"[{name}] Set stats.Name from GameObject: '{stats.Name}'");
             }
-            
-            // Trigger completion callback
-            _onMoveComplete?.Invoke();
+            return;
         }
+    
+        Debug.Log($"[{name}] Setting name from preset: '{CharacterPreset.CharacterName}'");
+        stats.Name = CharacterPreset.CharacterName;
+        
+        // Set name from preset
+        stats.Name = CharacterPreset.CharacterName;
+        
+        // Copy base stats from preset
+        stats.MaxHealth = CharacterPreset.BaseStats.MaxHealth;
+        stats.CurrentHealth = CharacterPreset.BaseStats.CurrentHealth;
+        stats.Power = CharacterPreset.BaseStats.Power;
+        stats.Focus = CharacterPreset.BaseStats.Focus;
+        stats.Resilience = CharacterPreset.BaseStats.Resilience;
+        stats.Willpower = CharacterPreset.BaseStats.Willpower;
+        stats.Fortune = CharacterPreset.BaseStats.Fortune;
+        
+        // Copy growth rates
+        stats.HealthGrowth = CharacterPreset.HealthGrowth;
+        stats.PowerGrowth = CharacterPreset.PowerGrowth;
+        stats.FocusGrowth = CharacterPreset.FocusGrowth;
+        stats.ResilienceGrowth = CharacterPreset.ResilienceGrowth;
+        stats.WillpowerGrowth = CharacterPreset.WillpowerGrowth;
+        stats.FortuneGrowth = CharacterPreset.FortuneGrowth;
+        
+        // Set GameObject name for clarity
+        gameObject.name = CharacterPreset.CharacterName;
+        Debug.Log($"[{name}] Updated GameObject name to: '{gameObject.name}'");
+        
+        
     }
     
-    // Movement
+    // ========== MOVEMENT SYSTEM ==========
+    
     public void SetGrid(DungeonGrid g) => Grid = g;
 
     public virtual bool TryMove(int dx, int dy, System.Action onComplete = null)
     {
-        //Debug.Log($"GridEntity.TryMove({dx},{dy}) called by {name}");
-
-        // Only work in grid-based mode
         if (GameManager.Instance?.IsGridBased != true) return false;
         if (Grid == null) return false;
 
         int targetX = GridX + dx;
         int targetY = GridY + dy;
 
-        //Debug.Log($"Moving from {GridX},{GridY} to {targetX},{targetY}");
-
         if (!Grid.InBounds(targetX, targetY)) return false;
 
         var targetTile = Grid.Tiles[targetX, targetY];
         if (!targetTile.Walkable) return false;
 
-        // Check for BLOCKING occupants only
+        // Check for BLOCKING occupants
         if (targetTile.Occupant != null && targetTile.Occupant.BlocksMovement && targetTile.Occupant != this)
         {
-            Debug.Log($"Tile occupied by {targetTile.Occupant.name}");
             return false;
         }
 
-        // DIAGONAL: Additional corner cutting check
-        if (dx != 0 && dy != 0)
+        // Diagonal clearance check
+        if (dx != 0 && dy != 0 && !CanMoveDiagonally(dx, dy))
         {
-            if (!CheckDiagonalClearance(dx, dy)) return false;
+            return false;
         }
 
-        // CRITICAL: Clear old grid position BEFORE updating GridX/GridY
+        // Clear old position
         if (Grid.InBounds(GridX, GridY))
         {
             Grid.Tiles[GridX, GridY].Occupant = null;
         }
 
-        // Update grid coordinates
+        // Update position
         GridX = targetX;
         GridY = targetY;
 
-        // Set as occupant if we block movement
         if (BlocksMovement)
         {
             Grid.Tiles[GridX, GridY].Occupant = this;
@@ -131,48 +160,39 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         // Handle movement visualization
         if (UseSmoothMovement)
         {
-            MoveTarget = new Vector3(GridX + 0.5f, GridY + 0.5f, 0);
+            _moveTarget = new Vector3(GridX + 0.5f, GridY + 0.5f, 0);
             IsMoving = true;
             _onMoveComplete = onComplete;
         }
         else
         {
-            // Teleport instantly
             transform.position = new Vector3(GridX + 0.5f, GridY + 0.5f, 0);
-        
-            // Handle tile interactions immediately
             HandleTileInteractions(targetTile);
             onComplete?.Invoke();
         }
     
-        //Debug.Log($"Movement successful. New position: {GridX},{GridY}");
         return true;
     }
 
-    private bool CheckDiagonalClearance(int dx, int dy)
+    private bool CanMoveDiagonally(int dx, int dy)
     {
-        // Check horizontal adjacent tile
+        // Check both adjacent cardinal tiles
         if (Grid.InBounds(GridX + dx, GridY))
         {
             var horizontalTile = Grid.Tiles[GridX + dx, GridY];
-            if (!horizontalTile.Walkable ||
-                (horizontalTile.Occupant != null && horizontalTile.Occupant.BlocksMovement &&
-                 horizontalTile.Occupant != this))
+            if (!horizontalTile.Walkable || 
+                (horizontalTile.Occupant != null && horizontalTile.Occupant.BlocksMovement && horizontalTile.Occupant != this))
             {
-                Debug.Log($"Diagonal blocked horizontally at {GridX + dx},{GridY}");
                 return false;
             }
         }
 
-        // Check vertical adjacent tile
         if (Grid.InBounds(GridX, GridY + dy))
         {
             var verticalTile = Grid.Tiles[GridX, GridY + dy];
-            if (!verticalTile.Walkable ||
-                (verticalTile.Occupant != null && verticalTile.Occupant.BlocksMovement &&
-                 verticalTile.Occupant != this))
+            if (!verticalTile.Walkable || 
+                (verticalTile.Occupant != null && verticalTile.Occupant.BlocksMovement && verticalTile.Occupant != this))
             {
-                Debug.Log($"Diagonal blocked vertically at {GridX},{GridY + dy}");
                 return false;
             }
         }
@@ -180,13 +200,33 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         return true;
     }
     
-    // Helper method for enemy AI
+    private void UpdateMovement()
+    {
+        if (!IsMoving) return;
+        
+        transform.position = Vector3.MoveTowards(transform.position, _moveTarget, MoveSpeed * Time.deltaTime);
+        
+        if (Vector3.Distance(transform.position, _moveTarget) < 0.01f)
+        {
+            transform.position = _moveTarget;
+            IsMoving = false;
+            
+            if (Grid != null)
+            {
+                HandleTileInteractions(Grid.Tiles[GridX, GridY]);
+            }
+            
+            _onMoveComplete?.Invoke();
+        }
+    }
+    
+    // ========== MOVEMENT HELPERS ==========
+    
     public bool TryMoveToward(Vector2Int direction, System.Action onComplete = null)
     {
         return TryMove(direction.x, direction.y, onComplete);
     }
     
-    // Stop any ongoing movement
     public void StopMovement()
     {
         IsMoving = false;
@@ -198,7 +238,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
 
     public bool CanMoveThisFrame()
     {
-        if (!Stats.IsAlive) return false;
+        if (!stats.IsAlive) return false;
         if (GameManager.Instance == null) return false;
         if (GameManager.Instance.IsGamePaused) return false;
         if (GameManager.Instance.IsInCutscene) return false;
@@ -207,29 +247,14 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         if (TurnManager.Instance == null) return false;
 
         // Check status effects
-        if (Stats.CurrentStatus != null)
+        if (stats.HasStatusEffect(StatusEffectType.Sleep) || 
+            stats.HasStatusEffect(StatusEffectType.Paralysis))
         {
-            // Assuming Stats.CurrentStatus is List<StatusEffect> or similar
-            foreach (var status in Stats.CurrentStatus)
-            {
-                if (status.Type == StatusEffectType.Sleep || 
-                    status.Type == StatusEffectType.Paralysis)
-                {
-                    return false;
-                }
-            }
+            return false;
         }
     
         return true;
     }
-    
-    // MODIFIED: Also check if currently attacking
-    public bool CanAttackThisFrame()
-    {
-        return IsAlive && _canAttack && !_isAttacking;
-    }
-    
-    public bool IsCurrentlyAttacking => _isAttacking;
     
     public bool CanMoveInDirection(int dx, int dy)
     {
@@ -251,39 +276,30 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
             return false;
         }
     
-        // DIAGONAL MOVEMENT: Prevent corner cutting
-        if (dx != 0 && dy != 0) // Moving diagonally
+        // DIAGONAL MOVEMENT: Use the same check as TryMove
+        if (dx != 0 && dy != 0 && !CanMoveDiagonally(dx, dy))
         {
-            // Need both adjacent cardinal tiles to be walkable
-            bool horizontalClear = Grid.InBounds(GridX + dx, GridY);
-            bool verticalClear = Grid.InBounds(GridX, GridY + dy);
-        
-            if (horizontalClear)
-            {
-                var horizontalTile = Grid.Tiles[GridX + dx, GridY];
-                if (!horizontalTile.Walkable) return false;
-                if (horizontalTile.Occupant != null && horizontalTile.Occupant.BlocksMovement && horizontalTile.Occupant != this)
-                    return false;
-            }
-        
-            if (verticalClear)
-            {
-                var verticalTile = Grid.Tiles[GridX, GridY + dy];
-                if (!verticalTile.Walkable) return false;
-                if (verticalTile.Occupant != null && verticalTile.Occupant.BlocksMovement && verticalTile.Occupant != this)
-                    return false;
-            }
+            return false;
         }
     
         return true;
     }
     
-    // COMBAT SYSTEM (in GridEntity!)
+    // ========== COMBAT SYSTEM ==========
+    
+    public bool CanAttackThisFrame()
+    {
+        return IsAlive && _canAttack && !_isAttacking;
+    }
+    
+    public bool IsCurrentlyAttacking => _isAttacking;
+    
     public void TakeDamage(int damage, GridEntity source = null, bool isPowerAttack = true)
     {
         if (!IsAlive) return;
 
         stats.CurrentHealth -= damage;
+        OnDamageTaken?.Invoke(damage);
         OnHealthChanged?.Invoke(stats.CurrentHealth);
         
         Debug.Log($"{name} took {damage} damage. Health: {stats.CurrentHealth}/{stats.MaxHealth}");
@@ -301,12 +317,11 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         Debug.Log($"{name} healed {amount}. Health: {stats.CurrentHealth}/{stats.MaxHealth}");
     }
     
-    // MODIFIED: Attack method now uses unified system
+    // Unified attack method
     public void Attack(GridEntity target, bool isPowerAttack = true, float movePower = 1.0f)
     {
         if (!IsAlive || !target.IsAlive) return;
         
-        // Use the new combat calculator
         int damage = CombatCalculator.CalculateDamage(
             stats, 
             target.stats, 
@@ -315,14 +330,11 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         );
         
         Debug.Log($"{name} attacks {target.name} for {damage} damage!");
-        
-        // Pass the attack type information
         target.TakeDamage(damage, this, isPowerAttack);
-        
         GameLogger.LogCombat(stats.Name, "attacked", target.stats.Name, damage);
     }
     
-    // NEW: Unified attack method with animation and cooldown
+    // Animated attack for TurnManager
     public IEnumerator PerformAttack(GridEntity target, System.Action onAttackComplete = null)
     {
         if (!IsAlive || !target.IsAlive || !_canAttack || _isAttacking)
@@ -339,45 +351,35 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         // Play attack animation
         yield return StartCoroutine(PlayAttackAnimation(target.transform.position));
         
-        // Calculate and apply damage
+        // Apply damage
         Attack(target);
         
         // Wait for any additional effects
         yield return new WaitForSeconds(0.1f);
         
         _isAttacking = false;
-        
-        // Start cooldown
         StartCoroutine(AttackCooldownRoutine());
-        
         onAttackComplete?.Invoke();
     }
     
-    // MODIFIED: Replaces old AttackAnimation method
     private IEnumerator PlayAttackAnimation(Vector3 targetPosition)
     {
         Vector3 startPos = transform.position;
         Vector3 attackPos = Vector3.Lerp(startPos, targetPosition, AttackPushbackDistance);
         
         float halfDuration = AttackAnimationDuration / 2f;
-        float elapsed = 0f;
         
         // Lunge forward
-        while (elapsed < halfDuration)
+        for (float t = 0; t < halfDuration; t += Time.deltaTime)
         {
-            float t = elapsed / halfDuration;
-            transform.position = Vector3.Lerp(startPos, attackPos, t);
-            elapsed += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, attackPos, t / halfDuration);
             yield return null;
         }
         
         // Return to position
-        elapsed = 0f;
-        while (elapsed < halfDuration)
+        for (float t = 0; t < halfDuration; t += Time.deltaTime)
         {
-            float t = elapsed / halfDuration;
-            transform.position = Vector3.Lerp(attackPos, startPos, t);
-            elapsed += Time.deltaTime;
+            transform.position = Vector3.Lerp(attackPos, startPos, t / halfDuration);
             yield return null;
         }
         
@@ -390,7 +392,6 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         _canAttack = true;
     }
     
-    // NEW: Simple attack queue method
     public void QueueAttack(GridEntity target)
     {
         if (_currentAttackCoroutine != null)
@@ -412,6 +413,38 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         }
     }
     
+    // ========== INTERACTION & COMBAT HELPERS ==========
+    
+    public bool TryAttackAdjacent(GridEntity target)
+    {
+        if (target == null || !IsAlive || !target.IsAlive) return false;
+    
+        // Check if adjacent
+        if (!IsAdjacentTo(target)) return false;
+    
+        // Queue the attack
+        if (CanAttackThisFrame())
+        {
+            TurnManager.Instance?.QueueAttack(this, target);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public bool IsAdjacentTo(GridEntity other)
+    {
+        if (other == null || Grid == null) return false;
+        if (Grid != other.Grid) return false;
+        
+        int dx = Mathf.Abs(GridX - other.GridX);
+        int dy = Mathf.Abs(GridY - other.GridY);
+        
+        return dx <= 1 && dy <= 1 && (dx != 0 || dy != 0);
+    }
+    
+    // ========== DEATH & ITEM SYSTEM ==========
+    
     protected virtual void OnDeathInternal(GridEntity killer = null)
     {
         Debug.Log($"{name} died!");
@@ -425,13 +458,14 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         // Give XP to killer if applicable
         if (killer != null && killer.Type == EntityType.Player && Type == EntityType.Enemy)
         {
-            killer.AddExperience(stats.ExperienceValue);
+            // Player handles XP through PlayerStats
         }
         
         // Drop held item
         if (HeldItem != null)
         {
-            DropItem(HeldItem);
+            // ItemManager.Instance.SpawnItem(GridX, GridY, HeldItem);
+            Debug.Log($"{name} dropped {HeldItem.ItemName}");
         }
         
         // Trigger death event
@@ -440,12 +474,10 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         // Handle destruction based on type
         if (Type == EntityType.Player)
         {
-            // Player doesn't get destroyed - handled by GameManager
             gameObject.SetActive(false);
         }
         else
         {
-            // Enemies/NPCs get destroyed after animation
             StartCoroutine(DeathAnimation());
         }
     }
@@ -455,15 +487,12 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr != null)
         {
-            float duration = 0.5f;
-            float elapsed = 0f;
             Color original = sr.color;
+            float duration = 0.5f;
             
-            while (elapsed < duration)
+            for (float t = 0; t < duration; t += Time.deltaTime)
             {
-                float t = elapsed / duration;
-                sr.color = Color.Lerp(original, Color.clear, t);
-                elapsed += Time.deltaTime;
+                sr.color = Color.Lerp(original, Color.clear, t / duration);
                 yield return null;
             }
         }
@@ -471,18 +500,6 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         Destroy(gameObject);
     }
     
-    // EXPERIENCE SYSTEM (in GridEntity!)
-    public void AddExperience(int amount)
-    {
-        // Only players care about experience for now
-        if (Type == EntityType.Player)
-        {
-            // This would be handled by PlayerController extending this
-            // But we keep the method here for consistency
-        }
-    }
-    
-    // ITEM SYSTEM (in GridEntity!)
     public bool PickUpItem(ItemEntity item)
     {
         if (item == null) return false;
@@ -492,7 +509,6 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         { 
             if (Type == EntityType.Enemy)
             {
-                // Enemy holds the item
                 HeldItem = item.ItemData;
                 Debug.Log($"{name} picked up {item.ItemData.ItemName}");
             }
@@ -507,14 +523,8 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         return false;
     }
     
-    private void DropItem(ItemData item)
-    {
-        // Spawn item at current position
-        Debug.Log($"{name} dropped {item.ItemName}");
-        // ItemManager.Instance.SpawnItem(GridX, GridY, item);
-    }
+    // ========== TILE INTERACTIONS ==========
     
-    // TILE INTERACTIONS (in GridEntity!)
     private void HandleTileInteractions(GridTile tile)
     {
         if (tile.Type == TileType.Effect && tile.TileEffect != null)
@@ -552,15 +562,11 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
             {
                 Debug.Log($"Player stepping on stairs at {GridX},{GridY}");
             
-                // CRITICAL: Clear movement state BEFORE changing floors
+                // Clear movement state before changing floors
                 var playerController = GetComponent<PlayerController>();
-                if (playerController != null)
-                {
-                    // Clear movement
-                    playerController.ClearMovementState();
-                }
+                playerController?.ClearMovementState();
             
-                // Now change floors
+                // Change floors
                 floorManager.GoToNextFloor();
             }
         }
@@ -574,63 +580,16 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
             PickUpItem(itemEntity);
         }
     }
-
-    // Update TryInteractWithOccupant to use new Attack method
-    public virtual bool TryInteractWithOccupant(GridEntity occupant, int dx, int dy)
-    {
-        if ((Type == EntityType.Player && occupant.Type == EntityType.Enemy) ||
-            (Type == EntityType.Enemy && occupant.Type == EntityType.Player))
-        {
-            Attack(occupant);
-            return true;
-        }
-        
-        return false;
-    }
     
-    // MODIFIED: Now uses the new PerformAttack method
-    public bool TryAttackAdjacent(GridEntity target, int dx, int dy)
-    {
-        if (target == null || !IsAlive || !target.IsAlive) return false;
+    // ========== EFFECT SYSTEM ==========
     
-        // Check if adjacent
-        int distance = Mathf.Max(Mathf.Abs(GridX - target.GridX), 
-            Mathf.Abs(GridY - target.GridY));
-    
-        if (distance != 1) return false; // Must be adjacent
-    
-        // Queue the attack
-        if (CanAttackThisFrame())
-        {
-            TurnManager.Instance?.QueueAttack(this, target);
-            return true;
-        }
-        
-        return false;
-    }
-    
-    public bool IsAdjacentTo(GridEntity other)
-    {
-        if (other == null || Grid == null) return false;
-        
-        // Check if on the same grid
-        if (Grid != other.Grid) return false;
-        
-        // Calculate Chebyshev distance (for 8-direction adjacency)
-        int dx = Mathf.Abs(GridX - other.GridX);
-        int dy = Mathf.Abs(GridY - other.GridY);
-        
-        // Adjacent if within 1 tile in any direction (including diagonals)
-        return dx <= 1 && dy <= 1 && (dx != 0 || dy != 0);
-    }
-    
-    // IEffectTileHandler implementation
     public void ApplyTileEffect(EventTileEffect effect)
     {
         if (effect == null) return;
     
-        // Check if this entity is affected by this effect
-        bool affectsEntity = effect.AffectsPlayer && Type == EntityType.Player || effect.AffectsEnemies && Type == EntityType.Enemy;
+        // Check if this entity is affected
+        bool affectsEntity = (effect.AffectsPlayer && Type == EntityType.Player) || 
+                            (effect.AffectsEnemies && Type == EntityType.Enemy);
 
         if (!affectsEntity) return;
     
@@ -643,17 +602,10 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
             else stats.TakeStatusDamage(-effect.HealthChange);
         }
     
-        // Status effects - using new structure
+        // Status effects
         if (effect.StatusEffect.Type != StatusEffectType.None && effect.StatusEffect.Duration > 0)
         {
             ApplyStatusEffect(effect.StatusEffect);
-        }
-    
-        // Stat modifiers
-        if (effect.Duration > 0 && (effect.AttackBonus != 0 || effect.DefenseBonus != 0 || effect.SpeedBonus != 0))
-        {
-            Debug.Log($"Temporary stats: +{effect.AttackBonus} ATK, +{effect.DefenseBonus} DEF, +{effect.SpeedBonus} SPD");
-            // TODO: Implement temporary buffs
         }
     
         // Special effects
@@ -662,19 +614,11 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
             var randomPos = Grid.GetRandomFloorPosition();
             TryTeleport(randomPos.x, randomPos.y);
         }
-    
-        // Visual feedback
-        if (!string.IsNullOrEmpty(effect.ActivationMessage))
-        {
-            Debug.Log(effect.ActivationMessage);
-        }
     }
     
-    // In GridEntity.cs
     public virtual void ApplyStatusEffect(StatusEffect effect)
     {
-        // Default: apply effect normally
-        Stats.ApplyStatusEffect(effect.Type, effect.Duration);
+        stats.ApplyStatusEffect(effect.Type, effect.Duration);
     }
     
     public bool TryTeleport(int targetX, int targetY)
@@ -701,16 +645,5 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
     public void UpdateStatusEffects()
     {
         stats.UpdateStatusEffects();
-    }
-    
-    protected virtual void OnParalyzed()
-    {
-        // Base behavior: entity is paralyzed
-        // Can be overridden by specific entities
-    }
-    
-    protected virtual void OnStatusEffectCleared()
-    {
-        // Base behavior: status effect wears off
     }
 }

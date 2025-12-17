@@ -31,7 +31,7 @@ public class PlayerUIManager : MonoBehaviour
                 playerStats.OnPlayerLevelUp.AddListener(UpdateLevel);
             
             // Initial update
-            UpdatePlayerName(playerStats.PlayerPreset?.CharacterName ?? "Player");
+            UpdatePlayerName(playerStats.name ?? "Player");
             UpdateLevel(playerStats.Stats.Level);
             UpdateHealth(playerStats.Stats.CurrentHealth);
             UpdateMana(playerStats.Stats.CurrentMana);
@@ -57,7 +57,7 @@ public class PlayerUIManager : MonoBehaviour
     public void UpdateHealth(int currentHealth)
     {
         if (healthBar != null && _playerStats != null)
-            healthBar.UpdateValue(currentHealth, _playerStats.Stats.MaxHealth, Color.red);
+            healthBar.UpdateValue(currentHealth, _playerStats.Stats.MaxHealth);
     }
     
     public void UpdateMana(int currentMana)

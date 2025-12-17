@@ -8,8 +8,9 @@ public class PlayerStats : GridEntity  // <-- INHERIT from GridEntity
     [Header("Player-Specific Stats")]
     [SaveField] public int Experience = 0;
     [SaveField] public int ExperienceToNextLevel = 100;
-    [SaveField] public List<ItemData> Inventory = new List<ItemData>();
-    public int MaxInventorySize = 20;
+    [SaveField] public List<ItemData> Inventory = new();
+    [SaveField] public int Money;
+    [SaveField] public int MaxInventorySize = 20;
 
     [Header("Player Events")]
     public UnityEvent<int> OnPlayerHealthChanged; // current health
@@ -18,24 +19,15 @@ public class PlayerStats : GridEntity  // <-- INHERIT from GridEntity
     public UnityEvent<int> OnPlayerLevelUp; // new level
     public UnityEvent<int> OnPlayerManaChanged;
 
-    [Header("Player Preset")]
-    public CharacterPresetSO PlayerPreset;
-    
     private PlayerScaling _scaling = new PlayerScaling();
 
-    private PlayerController _playerController;
-
-    private void Start()
+    public override void Start()
     {
+        base.Start();
         // Set player type
         Type = EntityType.Player;
         
-        // Initialize from preset
-        if (PlayerPreset != null)
-        {
-            InitializeFromPreset();
-        }
-        
+        // GridEntity.Start() already called InitializeFromPreset()
         // Calculate next level requirement
         ExperienceToNextLevel = _scaling.GetExpForLevel(Stats.Level);
         
@@ -46,29 +38,9 @@ public class PlayerStats : GridEntity  // <-- INHERIT from GridEntity
         
         OnPlayerHealthChanged?.Invoke(Stats.CurrentHealth);
     }
-    
-    void InitializeFromPreset()
-    {
-        // Copy base stats from preset
-        Stats.MaxHealth = PlayerPreset.BaseStats.MaxHealth;
-        Stats.CurrentHealth = PlayerPreset.BaseStats.CurrentHealth;
-        Stats.Power = PlayerPreset.BaseStats.Power;
-        Stats.Focus = PlayerPreset.BaseStats.Focus;
-        Stats.Resilience = PlayerPreset.BaseStats.Resilience;
-        Stats.Willpower = PlayerPreset.BaseStats.Willpower;
-        Stats.Fortune = PlayerPreset.BaseStats.Fortune;
-        
-        // Copy growth rates
-        Stats.HealthGrowth = PlayerPreset.HealthGrowth;
-        Stats.PowerGrowth = PlayerPreset.PowerGrowth;
-        Stats.FocusGrowth = PlayerPreset.FocusGrowth;
-        Stats.ResilienceGrowth = PlayerPreset.ResilienceGrowth;
-        Stats.WillpowerGrowth = PlayerPreset.WillpowerGrowth;
-        Stats.FortuneGrowth = PlayerPreset.FortuneGrowth;
-    }
 
     // Player-specific experience system
-    public new void AddExperience(int exp)
+    public void AddExperience(int exp)
     {
         Experience += exp;
         Debug.Log($"Gained {exp} EXP. Total: {Experience}/{ExperienceToNextLevel}");

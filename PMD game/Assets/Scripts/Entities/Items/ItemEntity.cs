@@ -5,7 +5,7 @@ public class ItemEntity : MonoBehaviour
 {
     public ItemData ItemData; // ScriptableObject with item info
     public SpriteRenderer spriteRenderer;
-
+    
     private GridEntity _gridEntity;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

@@ -6,7 +6,7 @@ public class DungeonFloorManager : MonoBehaviour
     [Header("References")] 
     public DungeonGenerator Generator;
     public DungeonRenderer Renderer;
-    public PrefabSpawner Spawner;
+    [SerializeField] private Transform _entityContainer;
 
     [Header("Settings")] 
     public int CurrentFloor = 1;
@@ -46,7 +46,7 @@ public class DungeonFloorManager : MonoBehaviour
         Renderer.Clear(); 
         if (CurrentFloor > 1)
         {
-            Spawner.Clear();
+            Clear();
         }
 
         // Step 2: Generate new layout
@@ -62,16 +62,15 @@ public class DungeonFloorManager : MonoBehaviour
         
         // Step 3: Render tiles & spawn objects
         Renderer.Render(_grid);
-        Spawner.SpawnFromGrid(_grid);
+
+        // Step 4: Place player
+        PlacePlayer();
         
         // NEW: Spawn enemies
         if (EnemySpawner != null)
         {
             EnemySpawner.SpawnEnemiesForFloor(_grid);
         }
-
-        // Step 4: Place player
-        PlacePlayer();
         
         // Notify UIManager about new floor for minimap
         if (UIManager.Instance != null)
@@ -165,10 +164,32 @@ public class DungeonFloorManager : MonoBehaviour
         
         // Clear dungeon
         Renderer.Clear();
-        if (Spawner != null) Spawner.Clear();
+        Clear();
+        
         
         // Return player to town position
         // This would be handled by your town scene manager
+    }
+    
+    public void Clear()
+    {
+        if (_entityContainer == null) _entityContainer = transform;
+
+        print(_entityContainer.childCount);
+        for (int i = _entityContainer.childCount - 1; i >= 0; i--)
+        {
+            print(_entityContainer.GetChild(i).gameObject.name + i);
+            if (Application.isPlaying && _entityContainer.childCount > 0)
+            {
+                print(_entityContainer.name);
+                Destroy(_entityContainer.GetChild(i).gameObject);
+            }
+            else
+            {
+                //DestroyImmediate(Parent.GetChild(i).gameObject);
+            }
+        }
+        print(_entityContainer.childCount);
     }
     
     // Helper to get player reference

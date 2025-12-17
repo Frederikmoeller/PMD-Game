@@ -30,7 +30,7 @@ public class EffectTileManager : MonoBehaviour
         }
         
         var effect = allPossibleEffects[Random.Range(0, allPossibleEffects.Count)];
-        Debug.Log($"Selected random effect: {effect.EffectName}");
+        //Debug.Log($"Selected random effect: {effect.EffectName}");
         return effect;
     }
     

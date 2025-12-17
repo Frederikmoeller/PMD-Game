@@ -135,8 +135,10 @@ MonoBehaviour:
   HeldItem: {fileID: 0}
   MoveSpeed: 5
   UseSmoothMovement: 1
-  IsMoving: 0
-  MoveTarget: {x: 0, y: 0, z: 0}
+  AttackCooldown: 0.5
+  AttackAnimationDuration: 0.3
+  AttackPushbackDistance: 0.3
+  CharacterPreset: {fileID: 11400000, guid: a40b003119a8fc947ac4fb5426834f3b, type: 2}
   Experience: 0
   ExperienceToNextLevel: 100
   Inventory: []
@@ -156,7 +158,6 @@ MonoBehaviour:
   OnPlayerManaChanged:
     m_PersistentCalls:
       m_Calls: []
-  PlayerPreset: {fileID: 0}
 --- !u!114 &3794089612966732284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,10 +170,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6cc87dc6a388df46b743d7c6b8cdb28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  SprintMultiplier: 2
-  FreeSprintSpeed: 10
   FreeMoveSpeed: 5
   GridMoveSpeed: 5
+  SprintMultiplier: 2
+  FreeSprintSpeed: 10
   InteractionRange: 1.5
 --- !u!114 &1304004406568348352
 MonoBehaviour:

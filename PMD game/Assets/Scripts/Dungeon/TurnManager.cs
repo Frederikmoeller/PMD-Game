@@ -18,7 +18,7 @@ public class TurnManager : MonoBehaviour
     
     void Start()
     {
-        _playerController = FindObjectOfType<PlayerController>();
+        _playerController = FindFirstObjectByType<PlayerController>();
         if (_playerController != null)
         {
             _playerEntity = _playerController.GetComponent<GridEntity>();
@@ -41,16 +41,9 @@ public class TurnManager : MonoBehaviour
         // Freeze player during enemy responses
         FreezePlayer(true);
         
-        if (wasAttack)
-        {
-            // Player attacked - check for enemy counter-attacks
-            CheckForEnemyCounterAttacks();
-        }
-        else
-        {
-            // Player moved - check for enemy attacks
-            CheckForEnemyAttacks();
-        }
+        // Player turn over - check for enemy attacks
+        CheckForEnemyAttacks();
+        
         
         // If no attacks queued, unfreeze player immediately
         if (_attackQueue.Count == 0)
@@ -58,9 +51,6 @@ public class TurnManager : MonoBehaviour
             Debug.Log("No enemy responses, player can continue");
             FreezePlayer(false);
         }
-        
-        // Always move enemies (except those attacking)
-        MoveAllEnemies();
     }
     
     private void CheckForEnemyAttacks()
@@ -79,25 +69,8 @@ public class TurnManager : MonoBehaviour
             }
         }
     }
-    
-    private void CheckForEnemyCounterAttacks()
-    {
-        Debug.Log("Checking for enemy counter-attacks after player attack");
-        
-        foreach (Enemy enemy in _enemies)
-        {
-            if (enemy != null && enemy.IsAlive && enemy.CanAttackThisFrame())
-            {
-                if (enemy.IsAdjacentTo(_playerEntity))
-                {
-                    QueueAttack(enemy, _playerEntity);
-                    Debug.Log($"{enemy.name} will counter-attack");
-                }
-            }
-        }
-    }
-    
-    private void MoveAllEnemies()
+
+    public void MoveAllEnemies()
     {
         Debug.Log("Moving all enemies");
         

@@ -15,8 +15,9 @@ public class MinimapSystem : MonoBehaviour
     public Color unexploredColor = Color.black;
     public Color playerColor = Color.green;
     public Color enemyColor = Color.red;
-    public Color stairsColor = Color.yellow;
+    public Color stairsColor = Color.cyan;
     public Color effectColor = Color.blue;
+    public Color ItemColor = Color.yellow;
     
     [Header("Display Settings")]
     public float maxDisplaySize = 400f;

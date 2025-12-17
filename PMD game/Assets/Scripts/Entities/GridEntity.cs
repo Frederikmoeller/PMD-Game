@@ -66,7 +66,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
     }
     
     // Make this VIRTUAL so child classes can override
-    protected virtual void InitializeFromPreset()
+    public virtual void InitializeFromPreset(int level = 1)
     {
         Debug.Log($"[{name}] InitializeFromPreset() called");
     
@@ -500,27 +500,11 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         Destroy(gameObject);
     }
     
-    public bool PickUpItem(ItemEntity item)
+    public virtual void PickUpItem(ItemEntity item)
     {
-        if (item == null) return false;
-        
-        // Check if we can hold items
-        if (Type == EntityType.Player || Type == EntityType.Enemy)
-        { 
-            if (Type == EntityType.Enemy)
-            {
-                HeldItem = item.ItemData;
-                Debug.Log($"{name} picked up {item.ItemData.ItemName}");
-            }
-            
-            // Remove item from world
-            item.OnPickedUp(this);
-            OnItemPickedUp?.Invoke(this);
-            
-            return true;
-        }
-        
-        return false;
+        // Remove item from world
+        item.OnPickedUp(this);
+        OnItemPickedUp?.Invoke(this);
     }
     
     // ========== TILE INTERACTIONS ==========
@@ -538,9 +522,9 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
             OnSteppedStairs();
         }
         
-        if (tile.Occupant != null && !tile.Occupant.BlocksMovement)
+        if (tile.ItemOnTile)
         {
-            OnSteppedOnItem(tile.Occupant);
+            PickUpItem(tile.OccupyingItem);
         }
     }
     
@@ -571,16 +555,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
             }
         }
     }
-    
-    protected virtual void OnSteppedOnItem(GridEntity item)
-    {
-        var itemEntity = item.GetComponent<ItemEntity>();
-        if (itemEntity != null)
-        {
-            PickUpItem(itemEntity);
-        }
-    }
-    
+
     // ========== EFFECT SYSTEM ==========
     
     public void ApplyTileEffect(EventTileEffect effect)

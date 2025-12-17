@@ -201,18 +201,28 @@ public class Enemy : GridEntity
             _playerEntity = playerObj.GetComponent<GridEntity>();
         }
     }
+
+    public override void PickUpItem(ItemEntity item)
+    {
+        if (Type == EntityType.Enemy && HeldItem == null)
+        {
+            HeldItem = item.ItemData;
+            Debug.Log($"{name} picked up {item.ItemData.ItemName}");
+        }
+        base.PickUpItem(item);
+    }
     
     // OPTIONAL: Override if enemies need special initialization
-    protected override void InitializeFromPreset()
+    public override void InitializeFromPreset(int level = 1)
     {
         // Call base first to get standard initialization
-        base.InitializeFromPreset();
+        base.InitializeFromPreset(level);
         
         if (CharacterPreset == null) return;
-        
+
         // Enemy-specific scaling
-        int currentFloor = GameManager.Instance?.CurrentFloor ?? 1;
-        EntityStats scaledStats = EnemyScaling.ScaleForFloor(CharacterPreset.BaseStats, currentFloor);
+        stats.Level = level;
+        EntityStats scaledStats = EnemyScaling.ScaleWithLevel(CharacterPreset.BaseStats, CharacterPreset.BaseStats.Level);
         
         // Apply scaled stats
         stats.MaxHealth = scaledStats.MaxHealth;
@@ -222,8 +232,7 @@ public class Enemy : GridEntity
         stats.Resilience = scaledStats.Resilience;
         stats.Willpower = scaledStats.Willpower;
         stats.Fortune = scaledStats.Fortune;
-        stats.Level = scaledStats.Level;
-        
+
         // Set experience value
         Stats.ExperienceValue = CharacterPreset.ExperienceValue;
     }

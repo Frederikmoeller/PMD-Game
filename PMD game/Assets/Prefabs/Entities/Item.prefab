@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6536430352695197963}
   - component: {fileID: 916954789481727592}
-  - component: {fileID: 4394611958354894855}
   - component: {fileID: 2195834581612805067}
   m_Layer: 0
   m_Name: Item
@@ -92,48 +91,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &4394611958354894855
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5885442421348599637}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96fc171b31123194b9880c5cc020a29c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GridEntity
-  GridX: 0
-  GridY: 0
-  Type: 2
-  stats:
-    Name: 
-    MaxHealth: 0
-    CurrentHealth: 0
-    MaxMana: 0
-    CurrentMana: 0
-    Power: 0
-    Focus: 0
-    Resilience: 0
-    Willpower: 0
-    Fortune: 0
-    Level: 0
-    CurrentStatus: []
-    ExperienceValue: 0
-    HealthGrowth: 0
-    PowerGrowth: 0
-    FocusGrowth: 0
-    ResilienceGrowth: 0
-    WillpowerGrowth: 0
-    FortuneGrowth: 0
-  HeldItem: {fileID: 0}
-  MoveSpeed: 5
-  UseSmoothMovement: 1
-  AttackCooldown: 0.5
-  AttackAnimationDuration: 0.3
-  AttackPushbackDistance: 0.3
-  CharacterPreset: {fileID: 0}
 --- !u!114 &2195834581612805067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,4 +104,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemEntity
   ItemData: {fileID: 11400000, guid: a35baacb665ecdf4e833ae6d6adbb684, type: 2}
-  spriteRenderer: {fileID: 0}
+  SpriteRenderer: {fileID: 916954789481727592}
+  GridPosition: {x: 0, y: 0}

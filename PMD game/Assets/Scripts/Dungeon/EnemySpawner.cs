@@ -4,7 +4,7 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     [Header("Enemy Prefabs")]
-    public GameObject[] EnemyPrefabs; // Assign different enemy prefabs here
+    public GameObject EnemyPrefab; // Assign different enemy prefabs here
     
     [Header("Spawn Settings")]
     public int MinEnemiesPerRoom = 1;
@@ -15,6 +15,7 @@ public class EnemySpawner : MonoBehaviour
     
     [Header("References")]
     public DungeonGenerator Generator;
+    public DungeonTemplate DungeonTemplate;
     public Transform EnemyParent;
     
     private List<GameObject> _spawnedEnemies = new();
@@ -24,7 +25,7 @@ public class EnemySpawner : MonoBehaviour
         // Clear previous enemies
         ClearEnemies();
         
-        if (Generator == null || grid == null || EnemyPrefabs.Length == 0)
+        if (Generator == null || grid == null || DungeonTemplate.Enemies.Count == 0)
         {
             Debug.LogWarning("Cannot spawn enemies: missing references!");
             return;
@@ -109,11 +110,9 @@ public class EnemySpawner : MonoBehaviour
     
     private void SpawnEnemyAtPosition(Vector2Int position, DungeonGrid grid)
     {
-        if (EnemyPrefabs.Length == 0) return;
-        
-        // Choose random enemy prefab
-        GameObject enemyPrefab = EnemyPrefabs[Random.Range(0, EnemyPrefabs.Length)];
-        
+        if (DungeonTemplate.Enemies.Count == 0) return;
+
+        CharacterPresetSO enemyPrefab = DungeonTemplate.Enemies[Random.Range(0, DungeonTemplate.Enemies.Count - 1)];
         // Create parent if needed
         if (EnemyParent == null)
         {
@@ -123,8 +122,8 @@ public class EnemySpawner : MonoBehaviour
         
         // Instantiate enemy
         Vector3 worldPos = new Vector3(position.x + 0.5f, position.y + 0.5f, 0);
-        GameObject enemy = Instantiate(enemyPrefab, worldPos, Quaternion.identity, EnemyParent);
-        
+        GameObject enemy = Instantiate(EnemyPrefab, worldPos, Quaternion.identity, EnemyParent);
+
         // Set up GridEntity component
         var gridEntity = enemy.GetComponent<GridEntity>();
         if (gridEntity != null)
@@ -132,6 +131,7 @@ public class EnemySpawner : MonoBehaviour
             gridEntity.GridX = position.x;
             gridEntity.GridY = position.y;
             gridEntity.SetGrid(grid);
+            gridEntity.CharacterPreset = enemyPrefab;
             
             // Mark tile as occupied
             grid.Tiles[position.x, position.y].Occupant = gridEntity;
@@ -141,7 +141,7 @@ public class EnemySpawner : MonoBehaviour
         var enemyComponent = enemy.GetComponent<Enemy>();
         if (enemyComponent != null)
         {
-            // Enemy will auto-register with TurnManager in Start()
+            enemyComponent.InitializeFromPreset(DungeonTemplate.EnemyLevels[Random.Range(0, DungeonTemplate.EnemyLevels.Length)]);
         }
 
         enemy.name = gridEntity.Stats.Name;

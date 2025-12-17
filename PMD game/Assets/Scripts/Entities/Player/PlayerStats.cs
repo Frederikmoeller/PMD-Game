@@ -87,6 +87,22 @@ public class PlayerStats : GridEntity  // <-- INHERIT from GridEntity
         gameObject.SetActive(false);
     }
 
+    public override void PickUpItem(ItemEntity item)
+    {
+        if (Type == EntityType.Player && Inventory.Count < MaxInventorySize)
+        {
+            if (item.ItemData.Type != ItemType.Money)
+            { 
+                Inventory.Add(item.ItemData);
+            }
+            else
+            {
+                Money += Random.Range(20, 100);
+            }
+        }
+        base.PickUpItem(item);
+    }
+
     // Inventory management
     public bool AddItemToInventory(ItemData item)
     {
@@ -107,20 +123,5 @@ public class PlayerStats : GridEntity  // <-- INHERIT from GridEntity
     public bool HasItem(ItemData item)
     {
         return Inventory.Contains(item);
-    }
-    
-    // Override item pickup for player
-    protected override void OnSteppedOnItem(GridEntity item)
-    {
-        var itemEntity = item.GetComponent<ItemEntity>();
-        if (itemEntity != null)
-        {
-            // Use player inventory system
-            if (AddItemToInventory(itemEntity.ItemData))
-            {
-                itemEntity.OnPickedUp(this);
-                OnItemPickedUp?.Invoke(this);
-            }
-        }
     }
 }

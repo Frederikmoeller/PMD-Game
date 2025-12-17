@@ -2,25 +2,24 @@ using UnityEngine;
 
 public class EnemyScaling
 {
-    public static EntityStats ScaleForFloor(EntityStats baseStats, int floorNumber)
+    public static EntityStats ScaleWithLevel(EntityStats baseStats, int level)
     {
         // Copy base stats
         EntityStats scaled = new EntityStats();
         
-        // Floor multiplier (enemies get 15% stronger per floor)
-        float floorMultiplier = 1.0f + (floorNumber - 1) * 0.15f;
+        // Floor multiplier (enemies get 15% stronger per level)
+        float levelMultiplier = level * 0.15f;
         
         // Scale stats (health scales more, fortune scales less)
-        scaled.MaxHealth = Mathf.RoundToInt(baseStats.MaxHealth * floorMultiplier * 1.1f);
-        scaled.Power = Mathf.RoundToInt(baseStats.Power * floorMultiplier);
-        scaled.Focus = Mathf.RoundToInt(baseStats.Focus * floorMultiplier);
-        scaled.Resilience = Mathf.RoundToInt(baseStats.Resilience * floorMultiplier);
-        scaled.Willpower = Mathf.RoundToInt(baseStats.Willpower * floorMultiplier);
-        scaled.Fortune = Mathf.RoundToInt(baseStats.Fortune * floorMultiplier * 0.8f);
+        scaled.MaxHealth = Mathf.RoundToInt(baseStats.MaxHealth * levelMultiplier * 1.1f);
+        scaled.Power = Mathf.RoundToInt(baseStats.Power * levelMultiplier);
+        scaled.Focus = Mathf.RoundToInt(baseStats.Focus * levelMultiplier);
+        scaled.Resilience = Mathf.RoundToInt(baseStats.Resilience * levelMultiplier);
+        scaled.Willpower = Mathf.RoundToInt(baseStats.Willpower * levelMultiplier);
+        scaled.Fortune = Mathf.RoundToInt(baseStats.Fortune * levelMultiplier * 0.8f);
         
         scaled.CurrentHealth = scaled.MaxHealth;
-        scaled.Level = Mathf.Max(1, floorNumber / 5); // Every 5 floors = +1 level
-        
+
         return scaled;
     }
 }

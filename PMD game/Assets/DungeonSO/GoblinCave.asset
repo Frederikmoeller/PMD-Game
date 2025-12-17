@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91ae709a62f05394991cdbe981de0cae, type: 3}
   m_Name: GoblinCave
   m_EditorClassIdentifier: Assembly-CSharp::DungeonTemplate
-  Floors: 0
-  Name: 
-  Description: 
+  Floors: 3
+  Name: Goblin Cave
+  Description: 'A standard goblin cave. For some reason they like this cave. '
   Enemies:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: e4dcf8a344a5e5f4db12a784dba45b4b, type: 2}
+  Items:
+  - {fileID: 11400000, guid: a35baacb665ecdf4e833ae6d6adbb684, type: 2}
   EnemyLevels: 010000000200000003000000
+  DungeonTheme: {fileID: 0}

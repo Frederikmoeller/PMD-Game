@@ -6,6 +6,7 @@ public class DungeonFloorManager : MonoBehaviour
     [Header("References")] 
     public DungeonGenerator Generator;
     public DungeonRenderer Renderer;
+    public DungeonTemplate DungeonTemplate;
     [SerializeField] private Transform _entityContainer;
 
     [Header("Settings")] 
@@ -17,6 +18,8 @@ public class DungeonFloorManager : MonoBehaviour
 
     private DungeonGrid _grid;
     private GameObject _player;
+
+    public GameObject ItemPrefab;
     
     [Header("Enemy Spawning")]
     public EnemySpawner EnemySpawner;
@@ -65,6 +68,8 @@ public class DungeonFloorManager : MonoBehaviour
 
         // Step 4: Place player
         PlacePlayer();
+        
+        ScatterItems(Random.Range(20, 30));
         
         // NEW: Spawn enemies
         if (EnemySpawner != null)
@@ -146,6 +151,60 @@ public class DungeonFloorManager : MonoBehaviour
         {
             GameManager.Instance.OnFloorChanged(CurrentFloor);
         }
+    }
+
+    public ItemEntity SpawnItem(Vector2Int position, ItemData itemData)
+    {
+        if (ItemPrefab == null || itemData == null || _grid == null)
+        {
+            return null;
+        }
+
+        if (_grid.InBounds(position.x, position.y) || _grid.Tiles[position.x, position.y].Walkable)
+        {
+            return null;
+        }
+
+        GameObject itemObj = Instantiate(ItemPrefab, _entityContainer);
+        ItemEntity itemEntity = itemObj.GetComponent<ItemEntity>();
+
+        if (itemEntity != null)
+        {
+            itemEntity.Initialize(itemData, _grid, position);
+        }
+
+        return itemEntity;
+    }
+
+    void ScatterItems(int count)
+    {
+        int tries = 0;
+        int placed = 0;
+        Debug.LogWarning("Started scattering items!");
+
+        if (DungeonTemplate.Items.Count == 0 || DungeonTemplate == null)
+        {
+            Debug.LogWarning("early item generation exit");
+            return;
+        }
+
+        while (placed < count && tries < 1000)
+        {
+            tries++;
+            int x = Random.Range(1, _grid.Width - 1);
+            int y = Random.Range(1, _grid.Height - 1);
+
+            if (_grid.Tiles[x, y].Type == TileType.Floor && _grid.Tiles[x, y].Occupant == null &&
+                !_grid.Tiles[x, y].ItemOnTile)
+            {
+                ItemData randomItem = DungeonTemplate.Items[Random.Range(0, DungeonTemplate.Items.Count)];
+
+                SpawnItem(new Vector2Int(x, y), randomItem);
+                placed++;
+                Debug.LogWarning($"Try {tries}: placed {randomItem} on position {x},{y}");
+            }
+        }
+
     }
     
     // Call when player dies in dungeon

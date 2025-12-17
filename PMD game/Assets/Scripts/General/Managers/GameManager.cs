@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("Game State")]
-    public int CurrentFloor = 1;
+    [SaveField] public int CurrentFloor = 1;
     public bool IsGamePaused = false;
     public bool IsInCutscene = false;
     public bool IsGridBased { get; private set; } = false;
@@ -25,17 +25,17 @@ public class GameManager : MonoBehaviour
     
     [Header("Dungeons")]
     public string CurrentDungeon = "";
-    [SaveField] public List<string> AvailableDungeons;
-    public List<string> AllDungeons;
+    [SaveField] public List<DungeonTemplate> AvailableDungeons;
+    public List<DungeonTemplate> AllDungeons;
 
     [Header("Story Progression")]
     [SaveField] public int StoryProgress = 0; // Could be enum for different story beats
     [SaveField] public bool[] StoryFlags; // For tracking story events
     
     [Header("Game Stats")]
-    public int TotalEnemiesDefeated = 0;
-    public int TotalItemsCollected = 0;
-    public int TotalFloorsCleared = 0;
+    [SaveField] public int TotalEnemiesDefeated = 0;
+    [SaveField] public int TotalItemsCollected = 0;
+    [SaveField] public int TotalFloorsCleared = 0;
 
     void Awake()
     {

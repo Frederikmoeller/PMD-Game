@@ -5,19 +5,19 @@ using UnityEngine.Tilemaps;
 public class GridDebugger : MonoBehaviour
 {
     [Header("References")]
-    public DungeonGenerator generator;
+    public DungeonGenerator Generator;
     public DungeonRenderer DungeonRenderer;
     
     [Header("Test Tiles")]
-    public TileBase testFloorTile;
-    public TileBase testWallTile;
+    public TileBase TestFloorTile;
+    public TileBase TestWallTile;
     
     [Header("Visual Debug")]
-    public bool drawGizmos = true;
-    public Color floorColor = Color.green;
-    public Color wallColor = Color.gray;
-    public Color stairColor = Color.blue;
-    public Color trapColor = Color.red;
+    public bool DrawGizmos = true;
+    public Color FloorColor = Color.green;
+    public Color WallColor = Color.gray;
+    public Color StairColor = Color.blue;
+    public Color TrapColor = Color.red;
     
     private DungeonGrid _currentGrid;
     
@@ -31,23 +31,23 @@ public class GridDebugger : MonoBehaviour
     void RunCompleteTest()
     {
         // Step 1: Generate grid
-        if (generator == null)
+        if (Generator == null)
         {
-            generator = FindFirstObjectByType<DungeonGenerator>();
-            if (generator == null)
+            Generator = FindFirstObjectByType<DungeonGenerator>();
+            if (Generator == null)
             {
                 Debug.LogError("No DungeonGenerator found in scene!");
                 return;
             }
         }
         
-        _currentGrid = generator.Grid;
+        _currentGrid = Generator.Grid;
 
         // Step 2: Count tiles
         AnalyzeGrid();
         
         // Step 3: Basic render (bypass complex systems)
-        if (DungeonRenderer != null && testFloorTile != null && testWallTile != null)
+        if (DungeonRenderer != null && TestFloorTile != null && TestWallTile != null)
         {
             SimpleRender();
         }
@@ -136,12 +136,12 @@ public class GridDebugger : MonoBehaviour
                 
                 if (tile.Type == TileType.Wall)
                 {
-                    DungeonRenderer.WallTilemap.SetTile(pos, testWallTile);
+                    DungeonRenderer.WallTilemap.SetTile(pos, TestWallTile);
                     tilesPlaced++;
                 }
                 else if (tile.Type != TileType.Empty)
                 {
-                    DungeonRenderer.FloorTilemap.SetTile(pos, testFloorTile);
+                    DungeonRenderer.FloorTilemap.SetTile(pos, TestFloorTile);
                     tilesPlaced++;
                 }
             }
@@ -156,7 +156,7 @@ public class GridDebugger : MonoBehaviour
     
     void OnDrawGizmos()
     {
-        if (!drawGizmos || _currentGrid == null || _currentGrid.Tiles == null) return;
+        if (!DrawGizmos || _currentGrid == null || _currentGrid.Tiles == null) return;
         
         for (int x = 0; x < _currentGrid.Width; x++)
         {
@@ -172,21 +172,21 @@ public class GridDebugger : MonoBehaviour
                 switch (tile.Type)
                 {
                     case TileType.Floor:
-                        Gizmos.color = floorColor;
+                        Gizmos.color = FloorColor;
                         Gizmos.DrawCube(center, size);
                         break;
                     case TileType.Wall:
-                        Gizmos.color = wallColor;
+                        Gizmos.color = WallColor;
                         Gizmos.DrawCube(center, size);
                         Gizmos.color = Color.black;
                         Gizmos.DrawWireCube(center, Vector3.one);
                         break;
                     case TileType.Stairs:
-                        Gizmos.color = stairColor;
+                        Gizmos.color = StairColor;
                         Gizmos.DrawSphere(center, 0.4f);
                         break;
                     case TileType.Effect:
-                        Gizmos.color = trapColor;
+                        Gizmos.color = TrapColor;
                         Gizmos.DrawWireCube(center, Vector3.one * 0.6f);
                         Gizmos.DrawLine(
                             new Vector3(x + 0.2f, y + 0.2f, 0),

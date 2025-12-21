@@ -9,7 +9,7 @@ namespace DialogueSystem.Save
         public void OnDialogueDataReady(DialogueSaveData saveData)
         {
             _memoryData = saveData;
-            Debug.Log($"Development: Dialogue data stored ({saveData.variables.Count} variables in memory)");
+            Debug.Log($"Development: Dialogue data stored ({saveData.Variables.Count} variables in memory)");
         }
 
         public DialogueSaveData OnDialogueDataRequested() => _memoryData;

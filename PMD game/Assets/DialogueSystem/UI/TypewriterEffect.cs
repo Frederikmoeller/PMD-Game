@@ -7,18 +7,18 @@ namespace DialogueSystem.UI
     public class TypewriterEffect : MonoBehaviour
     {
         [Header("Typewriter Settings")]
-        [SerializeField] private float charactersPerSecond = 50f;
-        [SerializeField] private float startDelay = 0.1f;
-        [SerializeField] private bool pauseOnPunctuation = true;
-        [SerializeField] private float punctuationPauseMultiplier = 3f;
+        [SerializeField] private float _charactersPerSecond = 50f;
+        [SerializeField] private float _startDelay = 0.1f;
+        [SerializeField] private bool _pauseOnPunctuation = true;
+        [SerializeField] private float _punctuationPauseMultiplier = 3f;
         
         [Header("Audio")]
-        [SerializeField] private bool useAudio = true;
-        [SerializeField] private AudioSource audioSource;
-        [SerializeField] private AudioClip typeSound;
-        [SerializeField] private float soundVolume = 0.5f;
-        [SerializeField] private float minPitch = 0.9f;
-        [SerializeField] private float maxPitch = 1.1f;
+        [SerializeField] private bool _useAudio = true;
+        [SerializeField] private AudioSource _audioSource;
+        [SerializeField] private AudioClip _typeSound;
+        [SerializeField] private float _soundVolume = 0.5f;
+        [SerializeField] private float _minPitch = 0.9f;
+        [SerializeField] private float _maxPitch = 1.1f;
         
         private TMP_Text _textComponent;
         private Coroutine _typewriterCoroutine;
@@ -35,11 +35,11 @@ namespace DialogueSystem.UI
         {
             _textComponent = GetComponent<TMP_Text>();
             
-            if (useAudio && audioSource == null)
+            if (_useAudio && _audioSource == null)
             {
-                audioSource = GetComponent<AudioSource>();
-                if (audioSource == null)
-                    audioSource = gameObject.AddComponent<AudioSource>();
+                _audioSource = GetComponent<AudioSource>();
+                if (_audioSource == null)
+                    _audioSource = gameObject.AddComponent<AudioSource>();
             }
         }
         
@@ -53,7 +53,7 @@ namespace DialogueSystem.UI
             _textComponent.text = "";
             _textComponent.ForceMeshUpdate();
 
-            float speed = speedOverride > 0 ? speedOverride : charactersPerSecond;
+            float speed = speedOverride > 0 ? speedOverride : _charactersPerSecond;
             _typewriterCoroutine = StartCoroutine(TypeTextRoutine(text, speed));
         }
         
@@ -71,7 +71,7 @@ namespace DialogueSystem.UI
         
         private IEnumerator TypeTextRoutine(string text, float speed)
         {
-            yield return new WaitForSeconds(startDelay);
+            yield return new WaitForSeconds(_startDelay);
             
             float delay = 1f / speed;
             
@@ -84,17 +84,17 @@ namespace DialogueSystem.UI
                 OnCharacterTyped?.Invoke();
                 
                 // Play sound if enabled
-                if (useAudio && typeSound != null && audioSource != null)
+                if (_useAudio && _typeSound != null && _audioSource != null)
                 {
-                    audioSource.pitch = Random.Range(minPitch, maxPitch);
-                    audioSource.PlayOneShot(typeSound, soundVolume);
+                    _audioSource.pitch = Random.Range(_minPitch, _maxPitch);
+                    _audioSource.PlayOneShot(_typeSound, _soundVolume);
                 }
         
                 // Calculate pause for current character
                 float currentDelay = delay;
-                if (pauseOnPunctuation && IsPunctuation(text[i]))
+                if (_pauseOnPunctuation && IsPunctuation(text[i]))
                 {
-                    currentDelay = delay * punctuationPauseMultiplier;
+                    currentDelay = delay * _punctuationPauseMultiplier;
                 }
                 
                 yield return new WaitForSeconds(currentDelay);

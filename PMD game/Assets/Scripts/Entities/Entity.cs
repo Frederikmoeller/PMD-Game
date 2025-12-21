@@ -1,9 +1,10 @@
 using UnityEngine;
 using System;
+using GameSystem;
 
 public abstract class Entity : MonoBehaviour
 {
-    public enum EntityType { Player, Enemy, NPC, Item, Decoration }
+    public enum EntityType { Player, Enemy, Npc, Item, Decoration }
     
     [Header("Entity Info")]
     public EntityType Type;

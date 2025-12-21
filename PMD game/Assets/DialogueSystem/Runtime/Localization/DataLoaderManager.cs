@@ -12,9 +12,9 @@ namespace DialogueSystem.Localization
         // Static constructor to register default loaders
         static DataLoaderManager()
         {
-            RegisterLoader(new CSVLoader());
-            RegisterLoader(new JSONLoader());
-            RegisterLoader(new XMLloader());
+            RegisterLoader(new CsvLoader());
+            RegisterLoader(new JsonLoader());
+            RegisterLoader(new XmLloader());
         }
 
         public static void RegisterLoader(IDialogueDataLoader loader)
@@ -51,9 +51,9 @@ namespace DialogueSystem.Localization
         {
             return _loaders.SelectMany(loader =>
             {
-                if (loader is CSVLoader) return new[] { "*.csv" };
-                if (loader is JSONLoader) return new[] { "*.json" };
-                if (loader is XMLloader) return new[] { "*.xml" };
+                if (loader is CsvLoader) return new[] { "*.csv" };
+                if (loader is JsonLoader) return new[] { "*.json" };
+                if (loader is XmLloader) return new[] { "*.xml" };
                 return new string[0];
             }).ToArray();
         }

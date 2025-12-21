@@ -6,13 +6,13 @@ namespace DialogueSystem.UI
 {
     public class LocalizedText : MonoBehaviour
     {
-        [SerializeField] private string key;
+        [SerializeField] private string _key;
 
-        private TMP_Text text;
+        private TMP_Text _text;
 
         private void Awake()
         {
-            text = GetComponent<TMP_Text>();
+            _text = GetComponent<TMP_Text>();
             LocalizationEvents.OnLanguageChanged += RefreshText;
         }
 
@@ -28,8 +28,8 @@ namespace DialogueSystem.UI
 
         public void RefreshText()
         {
-            if (text == null) return;
-            text.text = LocalizationSystem.Get(key);
+            if (_text == null) return;
+            _text.text = LocalizationSystem.Get(_key);
         }
     }
 }

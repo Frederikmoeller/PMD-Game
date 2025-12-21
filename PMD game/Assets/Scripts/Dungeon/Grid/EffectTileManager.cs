@@ -5,7 +5,7 @@ public class EffectTileManager : MonoBehaviour
 {
     public static EffectTileManager Instance { get; private set; }
     
-    [SerializeField] private List<EventTileEffect> allPossibleEffects = new List<EventTileEffect>();
+    [SerializeField] private List<EventTileEffect> _allPossibleEffects = new List<EventTileEffect>();
 
     void Awake()
     {
@@ -21,7 +21,7 @@ public class EffectTileManager : MonoBehaviour
     
     public EventTileEffect GetRandomEffect()
     {
-        if (allPossibleEffects == null || allPossibleEffects.Count == 0)
+        if (_allPossibleEffects == null || _allPossibleEffects.Count == 0)
         {
             Debug.LogWarning("No effect tile effects assigned to EffectTileManager!");
             
@@ -29,7 +29,7 @@ public class EffectTileManager : MonoBehaviour
             return CreateDefaultEffect();
         }
         
-        var effect = allPossibleEffects[Random.Range(0, allPossibleEffects.Count)];
+        var effect = _allPossibleEffects[Random.Range(0, _allPossibleEffects.Count)];
         //Debug.Log($"Selected random effect: {effect.EffectName}");
         return effect;
     }
@@ -52,7 +52,7 @@ public class EffectTileManager : MonoBehaviour
     // Editor helper
     void OnValidate()
     {
-        if (allPossibleEffects.Count == 0)
+        if (_allPossibleEffects.Count == 0)
         {
             Debug.LogWarning("Add some EventTileEffect assets to EffectTileManager!");
         }

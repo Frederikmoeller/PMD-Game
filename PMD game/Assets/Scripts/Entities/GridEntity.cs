@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using DialogueSystem;
+using GameSystem;
 
 public class GridEntity : MonoBehaviour, IEffectTileHandler
 {
@@ -11,10 +12,10 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
     
     // Entity Type & Behavior
     public EntityType Type;
-    public bool BlocksMovement => Type == EntityType.Enemy || Type == EntityType.NPC || Type == EntityType.Player;
+    public bool BlocksMovement => Type == EntityType.Enemy || Type == EntityType.Npc || Type == EntityType.Player;
     
     // Stats System (UNIFIED)
-    [SerializeField] protected EntityStats stats = new EntityStats();
+    [SerializeField] protected EntityStats stats = new();
     public EntityStats Stats => stats;
     public bool IsAlive => stats.IsAlive;
     
@@ -44,7 +45,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
     private Vector3 _moveTarget;
     
     [Header("Player Preset")]
-    public CharacterPresetSO CharacterPreset;
+    public CharacterPresetSo CharacterPreset;
 
     public virtual void Start()
     {
@@ -119,7 +120,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
 
     public virtual bool TryMove(int dx, int dy, System.Action onComplete = null)
     {
-        if (GameManager.Instance?.IsGridBased != true) return false;
+        if (GameManager.Instance?.Dungeon.IsInDungeon != true) return false;
         if (Grid == null) return false;
 
         int targetX = GridX + dx;
@@ -243,7 +244,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
         if (GameManager.Instance.IsGamePaused) return false;
         if (GameManager.Instance.IsInCutscene) return false;
         if (DialogueManager.Instance.IsDialogueActive) return false;
-        if (!GameManager.Instance.IsGridBased) return true;
+        if (!GameManager.Instance.Dungeon.IsInDungeon) return true;
         if (TurnManager.Instance == null) return false;
 
         // Check status effects
@@ -541,7 +542,7 @@ public class GridEntity : MonoBehaviour, IEffectTileHandler
     {
         if (Type == EntityType.Player)
         {
-            var floorManager = FindFirstObjectByType<DungeonFloorManager>();
+            var floorManager = FindFirstObjectByType<DungeonManager>();
             if (floorManager != null)
             {
                 Debug.Log($"Player stepping on stairs at {GridX},{GridY}");

@@ -274,16 +274,16 @@ namespace DialogueSystem.Editor
             };
             scrollView.Add(conditionsLabel);
             
-            for (int i = 0; i < defs.conditions.Count; i++)
+            for (int i = 0; i < defs.Conditions.Count; i++)
             {
-                AddConditionDefinitionUI(scrollView, i, defs.conditions[i]);
+                AddConditionDefinitionUI(scrollView, i, defs.Conditions[i]);
             }
             
             var addConditionBtn = new Button(() =>
             {
-                defs.conditions.Add(new ConditionDefinition { 
-                    id = "NEW_CONDITION", 
-                    displayName = "New Condition" 
+                defs.Conditions.Add(new ConditionDefinition { 
+                    Id = "NEW_CONDITION", 
+                    DisplayName = "New Condition" 
                 });
                 RefreshDefinitionsUI();
                 EditorUtility.SetDirty(defs);
@@ -302,16 +302,16 @@ namespace DialogueSystem.Editor
             };
             scrollView.Add(actionsLabel);
             
-            for (int i = 0; i < defs.actions.Count; i++)
+            for (int i = 0; i < defs.Actions.Count; i++)
             {
-                AddActionDefinitionUI(scrollView, i, defs.actions[i]);
+                AddActionDefinitionUI(scrollView, i, defs.Actions[i]);
             }
             
             var addActionBtn = new Button(() =>
             {
-                defs.actions.Add(new ActionDefinition { 
-                    id = "NEW_ACTION", 
-                    displayName = "New Action" 
+                defs.Actions.Add(new ActionDefinition { 
+                    Id = "NEW_ACTION", 
+                    DisplayName = "New Action" 
                 });
                 RefreshDefinitionsUI();
                 EditorUtility.SetDirty(defs);
@@ -339,18 +339,18 @@ namespace DialogueSystem.Editor
         
             var header = new VisualElement { style = { flexDirection = FlexDirection.Row } };
         
-            var idField = new TextField("ID") { value = condition.id, style = { flexGrow = 1 } };
+            var idField = new TextField("ID") { value = condition.Id, style = { flexGrow = 1 } };
             idField.RegisterValueChangedCallback(evt => 
             { 
-                condition.id = evt.newValue; 
+                condition.Id = evt.newValue; 
                 EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
             });
             header.Add(idField);
         
-            var nameField = new TextField("Display Name") { value = condition.displayName, style = { flexGrow = 1, marginLeft = 5 } };
+            var nameField = new TextField("Display Name") { value = condition.DisplayName, style = { flexGrow = 1, marginLeft = 5 } };
             nameField.RegisterValueChangedCallback(evt => 
             { 
-                condition.displayName = evt.newValue; 
+                condition.DisplayName = evt.newValue; 
                 EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
             });
             header.Add(nameField);
@@ -364,12 +364,12 @@ namespace DialogueSystem.Editor
             var argsContainer = new VisualElement();
             container.Add(argsContainer);
         
-            for (int i = 0; i < condition.args.Count; i++)
+            for (int i = 0; i < condition.Args.Count; i++)
             {
                 int argIndex = i; // Capture the index
-                AddArgumentDefinitionUi(argsContainer, i, condition.args[i], () =>
+                AddArgumentDefinitionUi(argsContainer, i, condition.Args[i], () =>
                 {
-                    condition.args.RemoveAt(argIndex);
+                    condition.Args.RemoveAt(argIndex);
                     RefreshDefinitionsUI();
                     EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
                 });
@@ -377,7 +377,7 @@ namespace DialogueSystem.Editor
         
             var addArgBtn = new Button(() =>
             {
-                condition.args.Add(new ArgumentDefinition { name = "new_arg", placeholder = "value" });
+                condition.Args.Add(new ArgumentDefinition { Name = "new_arg", Placeholder = "value" });
                 RefreshDefinitionsUI();
                 EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
             }) { text = "Add Argument" };
@@ -385,7 +385,7 @@ namespace DialogueSystem.Editor
         
             var removeBtn = new Button(() =>
             {
-                DialogueGraphSaveUtility.Defs.conditions.RemoveAt(index);
+                DialogueGraphSaveUtility.Defs.Conditions.RemoveAt(index);
                 RefreshDefinitionsUI();
                 EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
             }) { text = "Remove Condition", style = { marginTop = 5 } };
@@ -414,18 +414,18 @@ namespace DialogueSystem.Editor
         
             var header = new VisualElement { style = { flexDirection = FlexDirection.Row } };
         
-            var idField = new TextField("ID") { value = action.id, style = { flexGrow = 1 } };
+            var idField = new TextField("ID") { value = action.Id, style = { flexGrow = 1 } };
             idField.RegisterValueChangedCallback(evt => 
             { 
-                action.id = evt.newValue; 
+                action.Id = evt.newValue; 
                 EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
             });
             header.Add(idField);
         
-            var nameField = new TextField("Display Name") { value = action.displayName, style = { flexGrow = 1, marginLeft = 5 } };
+            var nameField = new TextField("Display Name") { value = action.DisplayName, style = { flexGrow = 1, marginLeft = 5 } };
             nameField.RegisterValueChangedCallback(evt => 
             { 
-                action.displayName = evt.newValue; 
+                action.DisplayName = evt.newValue; 
                 EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
             });
             header.Add(nameField);
@@ -439,12 +439,12 @@ namespace DialogueSystem.Editor
             var argsContainer = new VisualElement();
             container.Add(argsContainer);
         
-            for (int i = 0; i < action.args.Count; i++)
+            for (int i = 0; i < action.Args.Count; i++)
             {
                 int argIndex = i; // Capture the index
-                AddArgumentDefinitionUi(argsContainer, i, action.args[i], () =>
+                AddArgumentDefinitionUi(argsContainer, i, action.Args[i], () =>
                 {
-                    action.args.RemoveAt(argIndex);
+                    action.Args.RemoveAt(argIndex);
                     RefreshDefinitionsUI();
                     EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
                 });
@@ -452,7 +452,7 @@ namespace DialogueSystem.Editor
         
             var addArgBtn = new Button(() =>
             {
-                action.args.Add(new ArgumentDefinition { name = "new_arg", placeholder = "value" });
+                action.Args.Add(new ArgumentDefinition { Name = "new_arg", Placeholder = "value" });
                 RefreshDefinitionsUI();
                 EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
             }) { text = "Add Argument" };
@@ -460,7 +460,7 @@ namespace DialogueSystem.Editor
         
             var removeBtn = new Button(() =>
             {
-                DialogueGraphSaveUtility.Defs.actions.RemoveAt(index);
+                DialogueGraphSaveUtility.Defs.Actions.RemoveAt(index);
                 RefreshDefinitionsUI();
                 EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
             }) { text = "Remove Action", style = { marginTop = 5 } };
@@ -473,18 +473,18 @@ namespace DialogueSystem.Editor
         {
             var container = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 5, alignItems = Align.Center } };
         
-            var nameField = new TextField() { value = arg.name, style = { flexGrow = 1 } };
+            var nameField = new TextField() { value = arg.Name, style = { flexGrow = 1 } };
             nameField.RegisterValueChangedCallback(evt => 
             { 
-                arg.name = evt.newValue; 
+                arg.Name = evt.newValue; 
                 EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
             });
             container.Add(nameField);
         
-            var placeholderField = new TextField() { value = arg.placeholder, style = { flexGrow = 1, marginLeft = 5 } };
+            var placeholderField = new TextField() { value = arg.Placeholder, style = { flexGrow = 1, marginLeft = 5 } };
             placeholderField.RegisterValueChangedCallback(evt => 
             { 
-                arg.placeholder = evt.newValue; 
+                arg.Placeholder = evt.newValue; 
                 EditorUtility.SetDirty(DialogueGraphSaveUtility.Defs);
             });
             container.Add(placeholderField);

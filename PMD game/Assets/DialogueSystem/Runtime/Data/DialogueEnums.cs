@@ -30,7 +30,7 @@ namespace DialogueSystem.Data
     
     public static class ActionEnumConverter
     {
-        private static readonly Dictionary<StandardCondition, string> _conditionMap = new()
+        private static readonly Dictionary<StandardCondition, string> ConditionMap = new()
         {
             { StandardCondition.VariableExists, "variable_exists" },
             { StandardCondition.VariableEquals, "variable_equals" },
@@ -43,7 +43,7 @@ namespace DialogueSystem.Data
             { StandardCondition.VariableBool, "variable_bool" },
         };
         
-        private static readonly Dictionary<StandardAction, string> _actionMap = new()
+        private static readonly Dictionary<StandardAction, string> ActionMap = new()
         {
             { StandardAction.SetVariable, "set_variable" },
             { StandardAction.SetInt, "set_int" },
@@ -56,12 +56,12 @@ namespace DialogueSystem.Data
         
         public static string ToConditionId(this StandardCondition condition)
         {
-            return _conditionMap.TryGetValue(condition, out string id) ? id : condition.ToString().ToLower();
+            return ConditionMap.TryGetValue(condition, out string id) ? id : condition.ToString().ToLower();
         }
         
         public static string ToActionId(this StandardAction action)
         {
-            return _actionMap.TryGetValue(action, out string id) ? id : action.ToString().ToLower();
+            return ActionMap.TryGetValue(action, out string id) ? id : action.ToString().ToLower();
         }
     }
 }

@@ -8,9 +8,9 @@ using UnityEngine;
 namespace SaveSystem
 {
 
-    public class SaveSystem : MonoBehaviour
+    public class SaveManager : MonoBehaviour
     {
-        public static SaveSystem Instance;
+        public static SaveManager Instance;
 
         public SaveSystemSettings GlobalSettings = new();
 
@@ -31,12 +31,11 @@ namespace SaveSystem
         // Update is called once per frame
         void Update()
         {
+            if (!(GlobalSettings.AutoSaveInterval > 0)) return;
             _autoSaveTimer += Time.deltaTime;
-            if (_autoSaveTimer >= GlobalSettings.AutoSaveInterval)
-            {
-                AutoSave();
-                _autoSaveTimer = 0f;
-            }
+            if (!(_autoSaveTimer >= GlobalSettings.AutoSaveInterval)) return;
+            AutoSave();
+            _autoSaveTimer = 0f;
         }
 
         public void SaveSlot(string slotName, SaveSlotSettings slotSettings = null)
@@ -69,8 +68,8 @@ namespace SaveSystem
             {
                 dataBytes = encryption switch
                 {
-                    SaveEncryption.SimpleXOR => SimpleXOR(dataBytes),
-                    SaveEncryption.AES => AES_Decrypt(dataBytes),
+                    SaveEncryption.SimpleXor => SimpleXor(dataBytes),
+                    SaveEncryption.Aes => AES_Decrypt(dataBytes),
                     _ => dataBytes
                 };
             }
@@ -78,7 +77,7 @@ namespace SaveSystem
             SaveFileType fileType = GetFileType(slotSettings);
             Dictionary<string, Dictionary<string, object>> slotData = fileType switch
             {
-                SaveFileType.JSON => JsonUtility
+                SaveFileType.Json => JsonUtility
                     .FromJson<SerializationWrapper>(System.Text.Encoding.UTF8.GetString(dataBytes)).Data,
                 _ => throw new Exception("Unsupported file type")
             };
@@ -129,7 +128,7 @@ namespace SaveSystem
             SaveFileType fileType = GetFileType(slotSettings);
             byte[] bytes = fileType switch
             {
-                SaveFileType.JSON => System.Text.Encoding.UTF8.GetBytes(
+                SaveFileType.Json => System.Text.Encoding.UTF8.GetBytes(
                     JsonUtility.ToJson(new SerializationWrapper(data), true)),
                 _ => throw new Exception("Unsupported file type")
             };
@@ -147,13 +146,13 @@ namespace SaveSystem
         {
             return encryption switch
             {
-                SaveEncryption.SimpleXOR => SimpleXOR(data),
-                SaveEncryption.AES => AES_Encrypt(data),
+                SaveEncryption.SimpleXor => SimpleXor(data),
+                SaveEncryption.Aes => AES_Encrypt(data),
                 _ => data
             };
         }
 
-        private byte[] SimpleXOR(byte[] data)
+        private byte[] SimpleXor(byte[] data)
         {
             byte key = 0xAA;
             for (int i = 0; i < data.Length; i++)

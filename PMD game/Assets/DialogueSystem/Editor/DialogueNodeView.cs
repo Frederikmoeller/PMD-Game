@@ -347,8 +347,8 @@ namespace DialogueSystem.Editor
                     var defs = DialogueGraphSaveUtility.Defs;
                     if (defs != null)
                     {
-                        var conditionChoices = defs.conditions.ConvertAll(d => d.displayName);
-                        var currentIndex = defs.conditions.FindIndex(c => c.id == cond.CustomConditionId);
+                        var conditionChoices = defs.Conditions.ConvertAll(d => d.DisplayName);
+                        var currentIndex = defs.Conditions.FindIndex(c => c.Id == cond.CustomConditionId);
                         var pop = new PopupField<string>(conditionChoices, currentIndex >= 0 ? currentIndex : 0)
                         {
                             style =
@@ -360,10 +360,10 @@ namespace DialogueSystem.Editor
 
                         pop.RegisterValueChangedCallback(evt =>
                         {
-                            var selectedDef = defs.conditions.Find(c => c.displayName == evt.newValue);
+                            var selectedDef = defs.Conditions.Find(c => c.DisplayName == evt.newValue);
                             if (selectedDef != null)
                             {
-                                cond.CustomConditionId = selectedDef.id;
+                                cond.CustomConditionId = selectedDef.Id;
                                 cond.StandardCondition = default; // Clear standard condition
                         
                                 // Update args based on the custom condition
@@ -398,7 +398,7 @@ namespace DialogueSystem.Editor
                     {
                         // Switch to custom
                         var defs = DialogueGraphSaveUtility.Defs;
-                        cond.CustomConditionId = defs?.conditions.Count > 0 ? defs.conditions[0].id : "custom_condition";
+                        cond.CustomConditionId = defs?.Conditions.Count > 0 ? defs.Conditions[0].Id : "custom_condition";
                         cond.StandardCondition = default;
                     }
                     else
@@ -507,8 +507,8 @@ namespace DialogueSystem.Editor
                     var defs = DialogueGraphSaveUtility.Defs;
                     if (defs != null)
                     {
-                        var actionChoices = defs.actions.ConvertAll(d => d.displayName);
-                        var currentIndex = defs.actions.FindIndex(a => a.id == act.CustomActionId);
+                        var actionChoices = defs.Actions.ConvertAll(d => d.DisplayName);
+                        var currentIndex = defs.Actions.FindIndex(a => a.Id == act.CustomActionId);
                         var pop = new PopupField<string>(actionChoices, currentIndex >= 0 ? currentIndex : 0)
                         {
                             style =
@@ -520,10 +520,10 @@ namespace DialogueSystem.Editor
 
                         pop.RegisterValueChangedCallback(evt =>
                         {
-                            var selectedDef = defs.actions.Find(a => a.displayName == evt.newValue);
+                            var selectedDef = defs.Actions.Find(a => a.DisplayName == evt.newValue);
                             if (selectedDef != null)
                             {
-                                act.CustomActionId = selectedDef.id;
+                                act.CustomActionId = selectedDef.Id;
                                 act.StandardAction = default;
                                 UpdateActionArgs(act);
                                 MarkAssetDirty();
@@ -551,7 +551,7 @@ namespace DialogueSystem.Editor
                     if (isUsingStandard)
                     {
                         var defs = DialogueGraphSaveUtility.Defs;
-                        act.CustomActionId = defs?.actions.Count > 0 ? defs.actions[0].id : "custom_action";
+                        act.CustomActionId = defs?.Actions.Count > 0 ? defs.Actions[0].Id : "custom_action";
                         act.StandardAction = default;
                     }
                     else
@@ -637,7 +637,7 @@ namespace DialogueSystem.Editor
                 // Custom condition - use DialogueDefinitions to determine args
                 var defs = DialogueGraphSaveUtility.Defs;
                 var def = defs?.GetConditionDef(cond.Id);
-                cond.Args = def != null ? new string[def.args.Count] : Array.Empty<string>();
+                cond.Args = def != null ? new string[def.Args.Count] : Array.Empty<string>();
             }
         }
 
@@ -684,7 +684,7 @@ namespace DialogueSystem.Editor
             else
             {
                 // Custom condition - use DialogueDefinitions
-                int expectedArgCount = def?.args.Count ?? 0;
+                int expectedArgCount = def?.Args.Count ?? 0;
         
                 // Ensure Args array is properly sized
                 if (cond.Args == null || cond.Args.Length != expectedArgCount)
@@ -695,8 +695,8 @@ namespace DialogueSystem.Editor
                 // Show argument fields based on definition
                 for (int a = 0; a < expectedArgCount; a++)
                 {
-                    string argName = def?.args[a].name ?? $"Argument {a + 1}";
-                    string placeholder = def?.args[a].placeholder ?? "Enter value";
+                    string argName = def?.Args[a].Name ?? $"Argument {a + 1}";
+                    string placeholder = def?.Args[a].Placeholder ?? "Enter value";
             
                     AddArgumentField(fieldParent, argName, cond, a, placeholder);
                 }
@@ -798,7 +798,7 @@ namespace DialogueSystem.Editor
                 // Custom action - use DialogueDefinitions to determine args
                 var defs = DialogueGraphSaveUtility.Defs;
                 var def = defs?.GetActionDef(act.Id);
-                act.Args = def != null ? new string[def.args.Count] : Array.Empty<string>();
+                act.Args = def != null ? new string[def.Args.Count] : Array.Empty<string>();
             }
         }
 
@@ -854,7 +854,7 @@ namespace DialogueSystem.Editor
             else
             {
                 // Custom action - use DialogueDefinitions
-                int expectedArgCount = def?.args.Count ?? 0;
+                int expectedArgCount = def?.Args.Count ?? 0;
         
                 // Ensure Args array is properly sized
                 if (act.Args == null || act.Args.Length != expectedArgCount)
@@ -865,8 +865,8 @@ namespace DialogueSystem.Editor
                 // Show argument fields based on definition
                 for (int a = 0; a < expectedArgCount; a++)
                 {
-                    string argName = def?.args[a].name ?? $"Argument {a + 1}";
-                    string placeholder = def?.args[a].placeholder ?? "Enter value";
+                    string argName = def?.Args[a].Name ?? $"Argument {a + 1}";
+                    string placeholder = def?.Args[a].Placeholder ?? "Enter value";
             
                     AddArgumentField(fieldParent, argName, act, a, placeholder);
                 }

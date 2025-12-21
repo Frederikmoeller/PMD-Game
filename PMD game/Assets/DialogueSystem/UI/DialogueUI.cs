@@ -10,43 +10,43 @@ using UnityEngine.UI;
 
 namespace DialogueSystem.UI
 {
-    public class DialogueUI : MonoBehaviour, IDialogueUI
+    public class DialogueUi : MonoBehaviour, IDialogueUi
     {
         [Header("UI Components")]
-        [SerializeField] private TextMeshProUGUI dialogueText;
-        [SerializeField] private TextMeshProUGUI speakerText;
-        [SerializeField] private Transform choicesContainer;
-        [SerializeField] private Button choiceButtonPrefab;
-        [SerializeField] private GameObject continueIndicator;
+        [SerializeField] private TextMeshProUGUI _dialogueText;
+        [SerializeField] private TextMeshProUGUI _speakerText;
+        [SerializeField] private Transform _choicesContainer;
+        [SerializeField] private Button _choiceButtonPrefab;
+        [SerializeField] private GameObject _continueIndicator;
         
         [Header("Typewriter Settings")]
-        [SerializeField] private bool useTypewriterEffect = true;
-        [SerializeField] private TypewriterEffect typewriterEffect;
+        [SerializeField] private bool _useTypewriterEffect = true;
+        [SerializeField] private TypewriterEffect _typewriterEffect;
 
         private void Awake()
         { 
             // Setup TypewriterEffect if needed
-            if (useTypewriterEffect)
+            if (_useTypewriterEffect)
             {
                 InitializeTypewriterEffect();
             }
             
             // Hide continue indicator initially
-            if (continueIndicator != null)
-                continueIndicator.SetActive(false);
+            if (_continueIndicator != null)
+                _continueIndicator.SetActive(false);
         }
         
         private void InitializeTypewriterEffect()
         {
-            if (typewriterEffect == null)
+            if (_typewriterEffect == null)
             {
-                typewriterEffect = dialogueText.GetComponent<TypewriterEffect>();
-                if (typewriterEffect == null)
-                    typewriterEffect = dialogueText.gameObject.AddComponent<TypewriterEffect>();
+                _typewriterEffect = _dialogueText.GetComponent<TypewriterEffect>();
+                if (_typewriterEffect == null)
+                    _typewriterEffect = _dialogueText.gameObject.AddComponent<TypewriterEffect>();
             }
             
             // Subscribe to typewriter events
-            typewriterEffect.OnTypingCompleted += OnTypingComplete;
+            _typewriterEffect.OnTypingCompleted += OnTypingComplete;
         }
 
         public void ShowLine(DialogueLine line)
@@ -62,23 +62,23 @@ namespace DialogueSystem.UI
             string dialogueString = LocalizationSystem.Get(line.TextKey);
             
             // Ensure text is active
-            dialogueText.gameObject.SetActive(true);
-            speakerText.gameObject.SetActive(true);
+            _dialogueText.gameObject.SetActive(true);
+            _speakerText.gameObject.SetActive(true);
             
-            if (useTypewriterEffect && typewriterEffect != null)
+            if (_useTypewriterEffect && _typewriterEffect != null)
             {
                 // Hide continue indicator while typing
-                if (continueIndicator != null)
-                    continueIndicator.SetActive(false);
+                if (_continueIndicator != null)
+                    _continueIndicator.SetActive(false);
                 
                 // Start typing the text
-                typewriterEffect.StartTyping(dialogueString);
+                _typewriterEffect.StartTyping(dialogueString);
             }
             else
             {
                 // Show text immediately
-                dialogueText.text = dialogueString;
-                speakerText.text = speakerString;
+                _dialogueText.text = dialogueString;
+                _speakerText.text = speakerString;
                 
                 // Show continue indicator immediately
                 OnTypingComplete();
@@ -88,15 +88,15 @@ namespace DialogueSystem.UI
         private void OnTypingComplete()
         {
             // Show continue indicator when typing is done
-            if (continueIndicator != null)
-                continueIndicator.SetActive(true);
+            if (_continueIndicator != null)
+                _continueIndicator.SetActive(true);
             StartCoroutine(ContinueIndicatorBlinking());
         }
 
         IEnumerator ContinueIndicatorBlinking()
         {
-            var imageColor = continueIndicator.GetComponent<Image>().color;
-            while (continueIndicator.activeSelf)
+            var imageColor = _continueIndicator.GetComponent<Image>().color;
+            while (_continueIndicator.activeSelf)
             {
                 yield return new WaitForSeconds(.7f);
                 imageColor.a = 0;
@@ -107,34 +107,34 @@ namespace DialogueSystem.UI
 
         public void ShowChoices(List<DialogueChoice> choices)
         {
-            if (choicesContainer == null || choiceButtonPrefab == null)
+            if (_choicesContainer == null || _choiceButtonPrefab == null)
             {
                 Debug.LogWarning("DialogueUI: Choices container or button prefab not set up");
                 return;
             }
     
             // Clear existing choices
-            foreach (Transform child in choicesContainer)
+            foreach (Transform child in _choicesContainer)
             {
                 Destroy(child.gameObject);
             }
     
             // Show container
-            choicesContainer.gameObject.SetActive(true);
+            _choicesContainer.gameObject.SetActive(true);
     
             // Hide continue indicator during choice selection
-            if (continueIndicator != null)
-                continueIndicator.SetActive(false);
+            if (_continueIndicator != null)
+                _continueIndicator.SetActive(false);
     
             // Create choice buttons
             for (int i = 0; i < choices.Count; i++)
             {
                 var choice = choices[i];
-                var buttonGO = Instantiate(choiceButtonPrefab, choicesContainer);
+                var buttonGo = Instantiate(_choiceButtonPrefab, _choicesContainer);
         
                 // Get the Button component (UnityEngine.UI.Button)
-                var button = buttonGO.GetComponent<Button>();
-                var textComponent = buttonGO.GetComponentInChildren<TextMeshProUGUI>();
+                var button = buttonGo.GetComponent<Button>();
+                var textComponent = buttonGo.GetComponentInChildren<TextMeshProUGUI>();
         
                 if (textComponent != null)
                 {
@@ -156,21 +156,21 @@ namespace DialogueSystem.UI
                     }
             
                     // Hide choices
-                    choicesContainer.gameObject.SetActive(false);
+                    _choicesContainer.gameObject.SetActive(false);
                 });
             }
         }
 
         public void HideAll()
         {
-            dialogueText.gameObject.SetActive(false);
-            if (choicesContainer != null)
+            _dialogueText.gameObject.SetActive(false);
+            if (_choicesContainer != null)
             {
-                choicesContainer.gameObject.SetActive(false);
+                _choicesContainer.gameObject.SetActive(false);
             }
             
-            if (continueIndicator != null)
-                continueIndicator.SetActive(false);
+            if (_continueIndicator != null)
+                _continueIndicator.SetActive(false);
         }
 
         public void EndDialogue()
@@ -181,16 +181,16 @@ namespace DialogueSystem.UI
         // Public method for external scripts to skip typing
         public void SkipTyping()
         {
-            if (useTypewriterEffect && typewriterEffect != null && typewriterEffect.IsTyping)
+            if (_useTypewriterEffect && _typewriterEffect != null && _typewriterEffect.IsTyping)
             {
-                typewriterEffect.Finish();
+                _typewriterEffect.Finish();
             }
         }
         
         // Check if typing is in progress
         public bool IsTyping()
         {
-            return useTypewriterEffect && typewriterEffect != null && typewriterEffect.IsTyping;
+            return _useTypewriterEffect && _typewriterEffect != null && _typewriterEffect.IsTyping;
         }
     }
 }

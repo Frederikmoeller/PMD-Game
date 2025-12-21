@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.DialogueManager
   Ui: {fileID: 1919439587}
   Language: English
-  onDialogueEnded:
+  OnDialogueEnded:
     m_PersistentCalls:
       m_Calls: []
   StartAsset: {fileID: 0}
@@ -170,18 +170,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d99bceb2baea384c842e56bfc2766e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  titleScreenPanel: {fileID: 0}
-  titleStartButton: {fileID: 0}
-  titleQuitButton: {fileID: 0}
-  dungeonPanel: {fileID: 1641547583}
+  _minimapSystem: {fileID: 1873032437}
+  _actionLogManager: {fileID: 1551514234}
+  _playerUiManager: {fileID: 1339134365}
+  _popupManager: {fileID: 0}
+  _dialogueUiManager: {fileID: 1919439587}
+  _titleScreenContainer: {fileID: 0}
+  _townUIContainer: {fileID: 0}
+  _dungeonUIContainer: {fileID: 1641547583}
+  _dialogueUIContainer: {fileID: 0}
   floorNumberText: {fileID: 1842417138}
   dungeonNameText: {fileID: 1209771625}
-  minimapSystem: {fileID: 1873032437}
-  actionLogManager: {fileID: 1551514234}
-  playerUIManager: {fileID: 1339134365}
-  popupManager: {fileID: 0}
-  dialogueUIManager: {fileID: 1919439587}
-  dialoguePanel: {fileID: 1919439586}
+  minimapContainer: {fileID: 1873032435}
+  _titleStartButton: {fileID: 0}
+  _titleQuitButton: {fileID: 0}
+  _pauseResumeButton: {fileID: 0}
+  _pauseQuitButton: {fileID: 0}
+  _pausePanel: {fileID: 0}
+  _dialoguePanel: {fileID: 1919439586}
 --- !u!114 &85461658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -568,7 +574,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 473680210}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1196,7 +1202,7 @@ MonoBehaviour:
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
@@ -1780,10 +1786,10 @@ GameObject:
   - component: {fileID: 1090100841}
   - component: {fileID: 1090100840}
   - component: {fileID: 1090100839}
-  - component: {fileID: 1090100838}
   - component: {fileID: 1090100844}
   - component: {fileID: 1090100845}
   - component: {fileID: 1090100846}
+  - component: {fileID: 1090100847}
   m_Layer: 0
   m_Name: DungeonRoot
   m_TagString: Untagged
@@ -1791,43 +1797,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1090100838
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1090100837}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e4256e8fdbdf7b4d8d3ddce95438fbd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DungeonFloorManager
-  Generator: {fileID: 1090100841}
-  Renderer: {fileID: 1090100840}
-  DungeonTemplate: {fileID: 11400000, guid: 765fa9ef7fb7b5d4bbd8c9992dff366e, type: 2}
-  _entityContainer: {fileID: 2041806217}
-  CurrentFloor: 1
-  OnFloorStart:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 85461655}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnFloorEnd:
-    m_PersistentCalls:
-      m_Calls: []
-  ItemPrefab: {fileID: 5885442421348599637, guid: bb05fbf117065564d8c66e55cd48d66a, type: 3}
-  EnemySpawner: {fileID: 1090100846}
 --- !u!114 &1090100839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1920,8 +1889,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74ef5c71a42c0654296a7ca9f29b4dcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EffectTileManager
-  allPossibleEffects:
+  _allPossibleEffects:
   - {fileID: 11400000, guid: 5f1cb73d1ddacf34bbf93bdec04d2735, type: 2}
+  - {fileID: 11400000, guid: 5d38ffaff00077948bf492842d882c9e, type: 2}
 --- !u!114 &1090100846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1942,6 +1912,33 @@ MonoBehaviour:
   Generator: {fileID: 1090100841}
   DungeonTemplate: {fileID: 11400000, guid: 765fa9ef7fb7b5d4bbd8c9992dff366e, type: 2}
   EnemyParent: {fileID: 2041806217}
+--- !u!114 &1090100847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090100837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f26d06d9230009f4ca68d97a195685f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameSystem.DungeonManager
+  _generator: {fileID: 1090100841}
+  _renderer: {fileID: 1090100840}
+  _entityContainer: {fileID: 2041806217}
+  _itemPrefab: {fileID: 5885442421348599637, guid: bb05fbf117065564d8c66e55cd48d66a, type: 3}
+  _enemySpawner: {fileID: 1090100846}
+  OnDungeonStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnFloorChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDungeonCleared:
+    m_PersistentCalls:
+      m_Calls: []
+  _currentTemplate: {fileID: 11400000, guid: 765fa9ef7fb7b5d4bbd8c9992dff366e, type: 2}
 --- !u!1 &1157117763
 GameObject:
   m_ObjectHideFlags: 0
@@ -2443,6 +2440,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1304004406568348352, guid: d6a1f09d9614596468dde82e20ccc16f, type: 3}
+      propertyPath: m_Actions
+      value: 
+      objectReference: {fileID: -944628639613478452, guid: 43882181a55359041953abfb0b21fdb8, type: 3}
+    - target: {fileID: 1304004406568348352, guid: d6a1f09d9614596468dde82e20ccc16f, type: 3}
+      propertyPath: m_DefaultActionMap
+      value: Gameplay
+      objectReference: {fileID: 0}
+    - target: {fileID: 1304004406568348352, guid: d6a1f09d9614596468dde82e20ccc16f, type: 3}
+      propertyPath: m_DefaultControlScheme
+      value: Gamepad
+      objectReference: {fileID: 0}
     - target: {fileID: 2099825420754219269, guid: d6a1f09d9614596468dde82e20ccc16f, type: 3}
       propertyPath: InteractAction
       value: 
@@ -2479,13 +2488,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 8289092667448155494, guid: d6a1f09d9614596468dde82e20ccc16f, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     - target: {fileID: 8583484013939318803, guid: d6a1f09d9614596468dde82e20ccc16f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 35.25611
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8583484013939318803, guid: d6a1f09d9614596468dde82e20ccc16f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 19.49682
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8583484013939318803, guid: d6a1f09d9614596468dde82e20ccc16f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2692,22 +2705,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aab586f6def6ab847bb16f18ccad7ea8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerUIManager
-  playerNameText: {fileID: 1939557222}
-  playerLevelText: {fileID: 765937885}
-  healthBar:
-    fill: {fileID: 769482036}
-    fillRect: {fileID: 769482035}
-    valueText: {fileID: 1479035858}
-    useAnchorBasedFill: 1
-    lowHealthColor: {r: 1, g: 0, b: 0, a: 1}
-    lowHealthThreshold: 0.3
-  manaBar:
-    fill: {fileID: 317039313}
-    fillRect: {fileID: 317039312}
-    valueText: {fileID: 1570811513}
-    useAnchorBasedFill: 1
-    lowHealthColor: {r: 0, g: 0, b: 1, a: 1}
-    lowHealthThreshold: 0.3
+  _healthBar:
+    Fill: {fileID: 769482036}
+    FillRect: {fileID: 769482035}
+    ValueText: {fileID: 1479035858}
+    UseAnchorBasedFill: 1
+    LowHealthColor: {r: 1, g: 0, b: 0, a: 1}
+    LowHealthThreshold: 0.3
+  _manaBar:
+    Fill: {fileID: 317039313}
+    FillRect: {fileID: 317039312}
+    ValueText: {fileID: 1570811513}
+    UseAnchorBasedFill: 1
+    LowHealthColor: {r: 1, g: 0, b: 0, a: 1}
+    LowHealthThreshold: 0.3
+  levelText: {fileID: 765937885}
+  experienceText: {fileID: 0}
+  highHealthColor: {r: 0, g: 1, b: 0, a: 1}
+  mediumHealthColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lowHealthColor: {r: 1, g: 0, b: 0, a: 1}
+  manaColor: {r: 0, g: 0, b: 1, a: 1}
+  experienceColor: {r: 1, g: 0, b: 1, a: 1}
 --- !u!1 &1411838029
 GameObject:
   m_ObjectHideFlags: 0
@@ -2718,6 +2736,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1411838033}
   - component: {fileID: 1411838031}
+  - component: {fileID: 1411838035}
+  - component: {fileID: 1411838034}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2737,22 +2757,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 300edfbfcce85834491fa46a341d281e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  CurrentFloor: 1
-  IsGamePaused: 0
-  IsInCutscene: 0
-  sceneMovementConfigs:
+  _sceneConfigurations:
   - SceneName: Dungeon
+    Type: 2
     UseGridMovement: 1
+    IsPersistentScene: 0
   - SceneName: Town
+    Type: 1
     UseGridMovement: 0
-  CurrentDungeon: 
-  AvailableDungeons: []
-  AllDungeons: []
-  StoryProgress: 0
-  StoryFlags: 
-  TotalEnemiesDefeated: 0
-  TotalItemsCollected: 0
-  TotalFloorsCleared: 0
+    IsPersistentScene: 0
+  - SceneName: Title
+    Type: 0
+    UseGridMovement: 0
+    IsPersistentScene: 0
+  _uiManager: {fileID: 85461657}
+  _dialogueManager: {fileID: 85461656}
+  _saveManager: {fileID: 1411838035}
+  _audioManager: {fileID: 0}
+  _inputManager: {fileID: 1411838034}
 --- !u!4 &1411838033
 Transform:
   m_ObjectHideFlags: 0
@@ -2768,6 +2790,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1411838034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411838029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f608bbb6ea7b1e4c87d73470736d7a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameSystem.InputManager
+  _playerControls: {fileID: -944628639613478452, guid: 43882181a55359041953abfb0b21fdb8, type: 3}
+--- !u!114 &1411838035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411838029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62ec56ae409d3844ca6ce8a3398f29a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveSystem.SaveManager
+  GlobalSettings:
+    DefaultFileType: 0
+    DefaultEncryption: 0
+    AutoSaveSlot: AutoSave
+    AutoSaveInterval: 0
 --- !u!1 &1479035854
 GameObject:
   m_ObjectHideFlags: 0
@@ -3347,16 +3399,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7803e79f1466c06409677c367099491d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.UI.TypewriterEffect
-  charactersPerSecond: 50
-  startDelay: 0.1
-  pauseOnPunctuation: 1
-  punctuationPauseMultiplier: 3
-  useAudio: 1
-  audioSource: {fileID: 0}
-  typeSound: {fileID: 0}
-  soundVolume: 0.5
-  minPitch: 0.9
-  maxPitch: 1.1
+  _charactersPerSecond: 50
+  _startDelay: 0.1
+  _pauseOnPunctuation: 1
+  _punctuationPauseMultiplier: 3
+  _useAudio: 1
+  _audioSource: {fileID: 0}
+  _typeSound: {fileID: 0}
+  _soundVolume: 0.5
+  _minPitch: 0.9
+  _maxPitch: 1.1
 --- !u!114 &1622025992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3969,30 +4021,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c41e39e15fcb6b4a9a08cb6282bb059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinimapSystem
-  minimapDisplay: {fileID: 715009906}
-  minimapContainer: {fileID: 715009903}
-  pixelsPerTile: 3
-  wallColor: {r: 1, g: 1, b: 1, a: 0}
-  floorColor: {r: 0, g: 0, b: 0, a: 0.8156863}
-  unexploredColor: {r: 0, g: 0, b: 0, a: 0}
-  playerColor: {r: 0, g: 1, b: 0, a: 1}
-  enemyColor: {r: 1, g: 0, b: 0, a: 1}
-  stairsColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  effectColor: {r: 0, g: 0, b: 1, a: 1}
+  MinimapDisplay: {fileID: 715009906}
+  MinimapContainer: {fileID: 715009903}
+  PixelsPerTile: 4
+  WallColor: {r: 1, g: 1, b: 1, a: 0}
+  FloorColor: {r: 0.1, g: 0.1, b: 0.1, a: 0.7}
+  UnexploredColor: {r: 0, g: 0, b: 0, a: 0}
+  PlayerColor: {r: 0, g: 1, b: 0, a: 1}
+  EnemyColor: {r: 1, g: 0, b: 0, a: 1}
+  StairsColor: {r: 0, g: 1, b: 1, a: 1}
+  EffectColor: {r: 0, g: 0, b: 1, a: 1}
   ItemColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  maxDisplaySize: 600
-  maintainAspectRatio: 1
-  fixedDisplaySize: {x: 1, y: 1}
-  useFogOfWar: 1
-  exploredFloorColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.8}
-  visionRadius: 1
-  drawWallOutlines: 1
-  wallOutlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineThickness: 1
+  MaxDisplaySize: 600
+  MaintainAspectRatio: 1
+  FixedDisplaySize: {x: 0, y: 0}
+  UseFogOfWar: 1
+  ExploredFloorColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.8}
+  VisionRadius: 5
+  DrawWallOutlines: 1
+  WallOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  OutlineThickness: 1
   IncrementalUpdates: 1
   UpdateBatchSize: 100
   AutoRevealsRooms: 1
-  discoveredRoomColor: {r: 0.4, g: 0.4, b: 0.4, a: 0.9}
+  DiscoveredRoomColor: {r: 0.4, g: 0.4, b: 0.4, a: 0.9}
 --- !u!1 &1881314516
 GameObject:
   m_ObjectHideFlags: 0
@@ -4140,13 +4192,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3493df6b8b8f6e948bd5713d1eb4a50c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem.UI.DialogueUI
-  dialogueText: {fileID: 1622025995}
-  speakerText: {fileID: 2033841128}
-  choicesContainer: {fileID: 1157117764}
-  choiceButtonPrefab: {fileID: 2493634450098683879, guid: 2efde502ef47c9543af26430503faf86, type: 3}
-  continueIndicator: {fileID: 2024169659}
-  useTypewriterEffect: 1
-  typewriterEffect: {fileID: 1622025991}
+  _dialogueText: {fileID: 0}
+  _speakerText: {fileID: 0}
+  _choicesContainer: {fileID: 0}
+  _choiceButtonPrefab: {fileID: 0}
+  _continueIndicator: {fileID: 0}
+  _useTypewriterEffect: 1
+  _typewriterEffect: {fileID: 0}
 --- !u!224 &1919439588
 RectTransform:
   m_ObjectHideFlags: 0

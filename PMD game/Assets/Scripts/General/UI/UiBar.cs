@@ -3,16 +3,16 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class UIBar
+public class UiBar
 {
-    public Image fill;
-    public RectTransform fillRect;
-    public TextMeshProUGUI valueText;
+    public Image Fill;
+    public RectTransform FillRect;
+    public TextMeshProUGUI ValueText;
     
     [Header("Settings")]
-    public bool useAnchorBasedFill = true; // Most health bars use this
-    public Color lowHealthColor = Color.red;
-    public float lowHealthThreshold = 0.3f;
+    public bool UseAnchorBasedFill = true; // Most health bars use this
+    public Color LowHealthColor = Color.red;
+    public float LowHealthThreshold = 0.3f;
     
     private float _maxWidth;
     private Vector2 _originalSize;
@@ -20,16 +20,16 @@ public class UIBar
     
     public void Initialize()
     {
-        if (fillRect == null)
+        if (FillRect == null)
         {
             Debug.LogError("UIBar: fillRect is not assigned!");
             return;
         }
         
         // Store parent for width calculation
-        _parentRect = fillRect.parent as RectTransform;
+        _parentRect = FillRect.parent as RectTransform;
         
-        if (useAnchorBasedFill)
+        if (UseAnchorBasedFill)
         {
             // For anchored bars (most common), we need the parent width
             if (_parentRect != null)
@@ -43,15 +43,15 @@ public class UIBar
             }
             
             // Set initial anchor for left-aligned fill
-            fillRect.anchorMin = new Vector2(0, 0);
-            fillRect.anchorMax = new Vector2(0, 1);
-            fillRect.pivot = new Vector2(0, 0.5f);
+            FillRect.anchorMin = new Vector2(0, 0);
+            FillRect.anchorMax = new Vector2(0, 1);
+            FillRect.pivot = new Vector2(0, 0.5f);
         }
         else
         {
             // For sizeDelta-based bars
-            _originalSize = fillRect.sizeDelta;
-            _maxWidth = fillRect.sizeDelta.x;
+            _originalSize = FillRect.sizeDelta;
+            _maxWidth = FillRect.sizeDelta.x;
             //Debug.Log($"Initialized sizeDelta bar with max width: {_maxWidth}");
         }
         
@@ -61,14 +61,14 @@ public class UIBar
     
     public void UpdateValue(int current, int max, Color? customLowColor = null)
     {
-        if (fillRect == null) return;
+        if (FillRect == null) return;
         
         // Clamp values
         current = Mathf.Clamp(current, 0, max);
         float percentage = max > 0 ? (float)current / max : 0f;
         
         // Update fill
-        if (useAnchorBasedFill)
+        if (UseAnchorBasedFill)
         {
             UpdateAnchorBasedFill(percentage);
         }
@@ -78,19 +78,19 @@ public class UIBar
         }
         
         // Update text
-        if (valueText != null)
+        if (ValueText != null)
         {
-            valueText.text = $"{current} / {max}";
+            ValueText.text = $"{current} / {max}";
             
             // Color coding for low values
-            Color lowColor = customLowColor ?? lowHealthColor;
-            if (percentage < lowHealthThreshold)
+            Color lowColor = customLowColor ?? LowHealthColor;
+            if (percentage < LowHealthThreshold)
             {
-                fill.color = lowColor;
+                Fill.color = lowColor;
             }
             else
             {
-                fill.color = fill.transform.parent.name == "Mana" ? Color.blue : Color.green; // Reset to default
+                Fill.color = Fill.transform.parent.name == "Mana" ? Color.blue : Color.green; // Reset to default
             }
         }
         
@@ -100,11 +100,11 @@ public class UIBar
     private void UpdateAnchorBasedFill(float percentage)
     {
         // For anchored bars, we adjust anchorMax.x
-        fillRect.anchorMax = new Vector2(percentage, 1f);
+        FillRect.anchorMax = new Vector2(percentage, 1f);
         
         // Also set offset to 0 so it stretches from left anchor to percentage anchor
-        fillRect.offsetMin = Vector2.zero;
-        fillRect.offsetMax = Vector2.zero;
+        FillRect.offsetMin = Vector2.zero;
+        FillRect.offsetMax = Vector2.zero;
     }
     
     private void UpdateSizeDeltaFill(float percentage)
@@ -117,13 +117,13 @@ public class UIBar
             newWidth = 0f;
         
         // Update width only, keep height the same
-        fillRect.sizeDelta = new Vector2(newWidth, _originalSize.y);
+        FillRect.sizeDelta = new Vector2(newWidth, _originalSize.y);
     }
 
     private void AnimateBar(int targetCurrent, int targetMax, float duration)
     {
         // Get current percentage from bar
-        float startPercentage = useAnchorBasedFill ? fillRect.anchorMax.x : (fillRect.sizeDelta.x / _maxWidth);
+        float startPercentage = UseAnchorBasedFill ? FillRect.anchorMax.x : (FillRect.sizeDelta.x / _maxWidth);
         float targetPercentage = (float)targetCurrent / targetMax;
         float elapsed = 0f;
         
@@ -133,7 +133,7 @@ public class UIBar
             float t = elapsed / duration;
             float currentPercentage = Mathf.Lerp(startPercentage, targetPercentage, t);
             
-            if (useAnchorBasedFill)
+            if (UseAnchorBasedFill)
             {
                 UpdateAnchorBasedFill(currentPercentage);
             }

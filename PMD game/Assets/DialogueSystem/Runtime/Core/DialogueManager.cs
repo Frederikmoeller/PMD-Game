@@ -13,11 +13,11 @@ namespace DialogueSystem
         public static DialogueManager Instance { get; private set; }
         
         [Header("UI Reference")]
-        public DialogueUI Ui;
+        public DialogueUi Ui;
         public string Language = "English";
         
         [Header("Events")]
-        public UnityEvent<DialogueAsset> onDialogueEnded;
+        public UnityEvent<DialogueAsset> OnDialogueEnded;
         
         [Header("Start Settings")]
         public DialogueAsset StartAsset;
@@ -124,7 +124,7 @@ namespace DialogueSystem
             // Let the asset handle its own ending
             if (_currentAsset != null)
             {
-                _currentAsset.onDialogueEnd?.Invoke();
+                _currentAsset.OnDialogueEnd?.Invoke();
         
                 // OR handle specific fields
                 //if (_currentAsset.giveControlBack)
@@ -133,12 +133,12 @@ namespace DialogueSystem
                 /*if (!string.IsNullOrEmpty(_currentAsset.cutsceneToPlay))
                     CutsceneManager.Play(_currentAsset.cutsceneToPlay);*/
             
-                if (!string.IsNullOrEmpty(_currentAsset.endSceneName))
-                    SceneManager.LoadScene(_currentAsset.endSceneName);
+                if (!string.IsNullOrEmpty(_currentAsset.EndSceneName))
+                    SceneManager.LoadScene(_currentAsset.EndSceneName);
             }
     
             // Still fire the generic event for other listeners
-            onDialogueEnded?.Invoke(_currentAsset);
+            OnDialogueEnded?.Invoke(_currentAsset);
     
             _currentAsset = null;
         }

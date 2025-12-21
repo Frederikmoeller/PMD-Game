@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CharacterPreset", menuName = "Stats/Character Preset")]
-public class CharacterPresetSO : ScriptableObject
+public class CharacterPresetSo : ScriptableObject
 {
     public string CharacterName;
     public EntityStats BaseStats;

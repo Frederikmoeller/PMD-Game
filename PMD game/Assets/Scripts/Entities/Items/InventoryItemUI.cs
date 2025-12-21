@@ -2,14 +2,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class InventoryItemUI : MonoBehaviour
+public class InventoryItemUi : MonoBehaviour
 {
-    public Image itemIcon;
+    public Image ItemIcon;
     public TextMeshProUGUI ItemName;
     public TextMeshProUGUI ItemValue;
     public TextMeshProUGUI ItemDescription;
-    public TextMeshProUGUI itemType;
-    public Button useButton;
+    public TextMeshProUGUI ItemType;
+    public Button UseButton;
     
     private ItemData _itemData;
     
@@ -17,14 +17,14 @@ public class InventoryItemUI : MonoBehaviour
     {
         _itemData = item;
 
-        if (itemIcon != null) itemIcon.sprite = item.Icon;
+        if (ItemIcon != null) ItemIcon.sprite = item.Icon;
         if (ItemName != null) ItemName.text = item.ItemName;
         if (ItemDescription != null) ItemDescription.text = item.ItemDescription;
-        if (itemType != null) itemType.text = item.Type.ToString();
+        if (ItemType != null) ItemType.text = item.Type.ToString();
         if (ItemValue != null) ItemValue.text = item.ItemValue.ToString();
 
-        if (useButton != null)
-            useButton.clicked += OnUseClicked;
+        if (UseButton != null)
+            UseButton.clicked += OnUseClicked;
     }
     
     void OnUseClicked()

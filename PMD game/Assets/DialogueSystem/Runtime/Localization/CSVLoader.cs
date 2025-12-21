@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace DialogueSystem.Localization
 {
-    public class CSVLoader : IDialogueDataLoader
+    public class CsvLoader : IDialogueDataLoader
     {
         public bool CanLoad(string filePath)
         {
@@ -43,12 +43,12 @@ namespace DialogueSystem.Localization
 
             for (int i = 1; i < lines.Length; i++)
             {
-                string[] cols = ParseCSVLine(lines[i]);
+                string[] cols = ParseCsvLine(lines[i]);
 
                 if (cols.Length < 2 || string.IsNullOrWhiteSpace(cols[0])) continue;
 
                 string key = cols[0].Trim();
-                db.data[key] = new Dictionary<string, string>();
+                db.Data[key] = new Dictionary<string, string>();
 
                 for (int langIndex = 0; langIndex < languages.Length; langIndex++)
                 {
@@ -56,18 +56,18 @@ namespace DialogueSystem.Localization
 
                     if (langIndex + 1 < cols.Length)
                     {
-                        db.data[key][lang] = cols[langIndex + 1];
+                        db.Data[key][lang] = cols[langIndex + 1];
                     }
                     else
                     {
-                        db.data[key][lang] = "";
+                        db.Data[key][lang] = "";
                     }
                 }
             }
             return db;
         }
 
-        private string[] ParseCSVLine(string line)
+        private string[] ParseCsvLine(string line)
         {
             var result = new List<string>();
             bool inQuotes = false;
@@ -81,18 +81,18 @@ namespace DialogueSystem.Localization
                 }
                 else if (line[i] == ',' && !inQuotes)
                 {
-                    result.Add(UnescapedCSVField(line.Substring(start, i - start)));
+                    result.Add(UnescapedCsvField(line.Substring(start, i - start)));
                     start = i + 1;
                 }
             }
             
             //Add the last field
-            result.Add(UnescapedCSVField(line.Substring(start)));
+            result.Add(UnescapedCsvField(line.Substring(start)));
             
             return result.ToArray();
         }
 
-        private string UnescapedCSVField(string field)
+        private string UnescapedCsvField(string field)
         { 
             field = field.Trim();
             // Remove Surrounding quotes and handle escaped quotes

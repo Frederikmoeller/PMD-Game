@@ -7,14 +7,14 @@ public class DungeonGrid
     public int Height { get; }
     public GridTile[,] Tiles;
     
-    private List<RectInt> rooms;
+    private List<RectInt> _rooms;
 
     public DungeonGrid(int width, int height)
     {
         Width = width;
         Height = height;
         Tiles = new GridTile[Width, Height];
-        rooms = new List<RectInt>();
+        _rooms = new List<RectInt>();
         
         for (int x = 0; x < Width; x++)
         {
@@ -28,13 +28,13 @@ public class DungeonGrid
     // Add this public method
     public List<RectInt> GetRooms()
     {
-        return new List<RectInt>(rooms); // Return a copy
+        return new List<RectInt>(_rooms); // Return a copy
     }
     
     // Add this method to get room at position
     public RectInt? GetRoomAtPosition(int x, int y)
     {
-        foreach (var room in rooms)
+        foreach (var room in _rooms)
         {
             if (room.Contains(new Vector2Int(x, y)))
             {
@@ -48,15 +48,15 @@ public class DungeonGrid
 
     public void AddRoom(RectInt room)
     {
-        rooms.Add(room);
+        _rooms.Add(room);
     }
     
     // Get spawn point (center of first room)
     public Vector2Int GetSpawnPoint()
     {
-        if (rooms.Count > 0)
+        if (_rooms.Count > 0)
         {
-            return Vector2Int.RoundToInt(rooms[0].center);
+            return Vector2Int.RoundToInt(_rooms[0].center);
         }
 
         return new Vector2Int(Width / 2, Height / 2); // Fallback

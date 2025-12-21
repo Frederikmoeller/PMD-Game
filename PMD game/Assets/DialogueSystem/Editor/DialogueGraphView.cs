@@ -79,9 +79,9 @@ namespace DialogueSystem.Editor
             AddElement(startNode);
     
             // Create node views for each DialogueLine
-            if (asset.nodes != null)
+            if (asset.Nodes != null)
             {
-                foreach (var node in asset.nodes)
+                foreach (var node in asset.Nodes)
                 {
                     var nv = new DialogueNodeView(node, this);
                     nv.SetPosition(new Rect(node.Position, new Vector2(200, 150)));
@@ -103,13 +103,13 @@ namespace DialogueSystem.Editor
             var nodeViews = nodes.ToList().Where(n => n is DialogueNodeView).Cast<DialogueNodeView>().ToList();
             
             // Reconnect start node first
-            if (!string.IsNullOrEmpty(asset.startNodeId))
+            if (!string.IsNullOrEmpty(asset.StartNodeId))
             {
-                var startTarget = FindNodeViewByGuid(asset.startNodeId);
+                var startTarget = FindNodeViewByGuid(asset.StartNodeId);
                 if (startTarget != null && startNode != null)
                 {
                     CreateEdge(startNode.GetOutputPort(), startTarget.GetInputPort());
-                    startNode.StartNodeId = asset.startNodeId; // Update the StartNodeView's internal state
+                    startNode.StartNodeId = asset.StartNodeId; // Update the StartNodeView's internal state
                 }
             }
     
@@ -329,7 +329,7 @@ namespace DialogueSystem.Editor
                 startNode.StartNodeId = inputNode.NodeData.Guid;
                 if (_editorWindow.CurrentAsset != null)
                 {
-                    _editorWindow.CurrentAsset.startNodeId = inputNode.NodeData.Guid;
+                    _editorWindow.CurrentAsset.StartNodeId = inputNode.NodeData.Guid;
                 }
             }
     

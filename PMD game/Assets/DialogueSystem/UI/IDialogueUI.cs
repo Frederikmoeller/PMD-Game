@@ -4,7 +4,7 @@ using DialogueSystem.Data;
 
 namespace DialogueSystem.UI
 {
-    public interface IDialogueUI
+    public interface IDialogueUi
     {
         void ShowLine(DialogueLine line);
         void ShowChoices(List<DialogueChoice> choices);

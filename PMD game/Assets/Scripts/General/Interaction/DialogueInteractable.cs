@@ -5,19 +5,19 @@ using UnityEngine;
 public class DialogueInteractable : MonoBehaviour, IInteractable
 {
     [Header("Dialogue Settings")]
-    public DialogueAsset dialogueAsset;
-    public bool canInteractMultipleTimes = false;
-    public bool faceInteractor = true;
+    public DialogueAsset DialogueAsset;
+    public bool CanInteractMultipleTimes = false;
+    public bool FaceInteractor = true;
     
     [Header("Interaction Prompt")]
-    public string interactionText = "Talk";
-    public GameObject interactionPrompt;
-    public Vector3 promptOffset = new Vector3(0, 1.5f, 0);
+    public string InteractionText = "Talk";
+    public GameObject InteractionPrompt;
+    public Vector3 PromptOffset = new Vector3(0, 1.5f, 0);
     
     [Header("Conditions")]
-    public bool requiresItem;
-    public string requiredItemId;
-    public bool consumesItem;
+    public bool RequiresItem;
+    public string RequiredItemId;
+    public bool ConsumesItem;
     
     private bool _hasInteracted = false;
     private SpriteRenderer _spriteRenderer;
@@ -27,9 +27,9 @@ public class DialogueInteractable : MonoBehaviour, IInteractable
         _spriteRenderer = GetComponent<SpriteRenderer>();
         
         // Hide prompt initially
-        if (interactionPrompt != null)
+        if (InteractionPrompt != null)
         {
-            interactionPrompt.SetActive(false);
+            InteractionPrompt.SetActive(false);
         }
     }
     
@@ -40,16 +40,16 @@ public class DialogueInteractable : MonoBehaviour, IInteractable
         Debug.Log($"DialogueInteractable: {name} interacted with by {interactor.name}");
         
         // Face the interactor if configured
-        if (faceInteractor && _spriteRenderer != null)
+        if (FaceInteractor && _spriteRenderer != null)
         {
             Vector3 direction = interactor.transform.position - transform.position;
             _spriteRenderer.flipX = direction.x > 0;
         }
         
         // Start dialogue
-        if (dialogueAsset != null && DialogueManager.Instance != null)
+        if (DialogueAsset != null && DialogueManager.Instance != null)
         {
-            DialogueManager.Instance.StartDialogue(dialogueAsset);
+            DialogueManager.Instance.StartDialogue(DialogueAsset);
         }
         else
         {
@@ -57,14 +57,14 @@ public class DialogueInteractable : MonoBehaviour, IInteractable
         }
         
         // Mark as interacted if needed
-        if (!canInteractMultipleTimes)
+        if (!CanInteractMultipleTimes)
         {
             _hasInteracted = true;
             ShowPrompt(false);
         }
         
         // Handle item consumption
-        if (requiresItem && consumesItem)
+        if (RequiresItem && ConsumesItem)
         {
             // Remove item from player inventory
             // InventorySystem.Instance.RemoveItem(requiredItemId);
@@ -74,10 +74,10 @@ public class DialogueInteractable : MonoBehaviour, IInteractable
     public bool CanInteract(GameObject interactor)
     {
         // Check if already interacted (for one-time interactions)
-        if (!canInteractMultipleTimes && _hasInteracted) return false;
+        if (!CanInteractMultipleTimes && _hasInteracted) return false;
         
         // Check item requirement
-        if (requiresItem)
+        if (RequiresItem)
         {
             // Check if player has the required item
             // return InventorySystem.Instance.HasItem(requiredItemId);
@@ -89,20 +89,20 @@ public class DialogueInteractable : MonoBehaviour, IInteractable
     
     public string GetInteractionText()
     {
-        return interactionText;
+        return InteractionText;
     }
     
     public void ShowPrompt(bool show)
     {
-        if (interactionPrompt != null)
+        if (InteractionPrompt != null)
         {
-            interactionPrompt.SetActive(show && CanInteract(null));
+            InteractionPrompt.SetActive(show && CanInteract(null));
         }
     }
     
     public Vector3 GetInteractionPosition()
     {
-        return transform.position + promptOffset;
+        return transform.position + PromptOffset;
     }
     
     // Optional: Reset interaction state
@@ -114,7 +114,7 @@ public class DialogueInteractable : MonoBehaviour, IInteractable
     // Optional: Change dialogue asset at runtime
     public void SetDialogueAsset(DialogueAsset newAsset)
     {
-        dialogueAsset = newAsset;
+        DialogueAsset = newAsset;
         ResetInteraction();
     }
 }

@@ -20,6 +20,9 @@ MonoBehaviour:
   AffectsPlayer: 1
   AffectsEnemies: 1
   HealthChange: 0
+  StatusEffect:
+    Type: 3
+    Duration: 5
   AttackBonus: 0
   DefenseBonus: 0
   SpeedBonus: 0

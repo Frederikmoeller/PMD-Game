@@ -6,26 +6,26 @@ using UnityEngine;
 
 namespace DialogueSystem.Localization
 {
-    public class JSONLoader : IDialogueDataLoader
+    public class JsonLoader : IDialogueDataLoader
     {
         [Serializable]
-        private class JSONLocalizationData
+        private class JsonLocalizationData
         {
-            public List<JSONLocalizationEntry> entries = new();
+            public List<JsonLocalizationEntry> Entries = new();
         }
         
         [Serializable]
-        private class JSONLocalizationEntry
+        private class JsonLocalizationEntry
         {
-            public string key;
-            public List<JSONTranslation> translations = new List<JSONTranslation>();
+            public string Key;
+            public List<JsonTranslation> Translations = new List<JsonTranslation>();
         }
 
         [Serializable]
-        private class JSONTranslation
+        private class JsonTranslation
         {
-            public string language;
-            public string text;
+            public string Language;
+            public string Text;
         }
 
         public bool CanLoad(string filePath)
@@ -53,33 +53,33 @@ namespace DialogueSystem.Localization
             try
             {
                 string jsonContent = File.ReadAllText(fullPath);
-                JSONLocalizationData jsonData = JsonUtility.FromJson<JSONLocalizationData>(jsonContent);
+                JsonLocalizationData jsonData = JsonUtility.FromJson<JsonLocalizationData>(jsonContent);
 
-                if (jsonData?.entries == null)
+                if (jsonData?.Entries == null)
                 {
                     Debug.LogError("Invalid JSON format: entries array is null");
                     return db;
                 }
 
-                foreach (var entry in jsonData.entries)
+                foreach (var entry in jsonData.Entries)
                 {
-                    if (string.IsNullOrEmpty(entry.key))
+                    if (string.IsNullOrEmpty(entry.Key))
                     {
                         Debug.LogWarning("Skipping entry with null key in JSON");
                         continue;
                     }
 
-                    db.data[entry.key] = new Dictionary<string, string>();
+                    db.Data[entry.Key] = new Dictionary<string, string>();
 
-                    foreach (var translation in entry.translations)
+                    foreach (var translation in entry.Translations)
                     {
-                        if (!string.IsNullOrEmpty(translation.language))
+                        if (!string.IsNullOrEmpty(translation.Language))
                         {
-                            db.data[entry.key][translation.language] = translation.text ?? "";
+                            db.Data[entry.Key][translation.Language] = translation.Text ?? "";
                         }
                     }
                 }
-                Debug.Log($"JSON loaded successfully: {db.data.Count} keys");
+                Debug.Log($"JSON loaded successfully: {db.Data.Count} keys");
             }
             catch (Exception e)
             {

@@ -1,9 +1,9 @@
 using UnityEngine;
 using DialogueSystem.Data;
 
-public class NPCController : MonoBehaviour
+public class NpcController : MonoBehaviour
 {
-    public DialogueAsset dialogueData; // Assuming DialogueAsset is your dialogue data type
+    public DialogueAsset DialogueData; // Assuming DialogueAsset is your dialogue data type
     public string CharacterName = "NPC";
     public Sprite CharacterPortrait;
     
@@ -12,7 +12,7 @@ public class NPCController : MonoBehaviour
         var gridEntity = GetComponent<GridEntity>();
         if (gridEntity != null)
         {
-            gridEntity.Type = EntityType.NPC;
+            gridEntity.Type = EntityType.Npc;
         }
     }
 }

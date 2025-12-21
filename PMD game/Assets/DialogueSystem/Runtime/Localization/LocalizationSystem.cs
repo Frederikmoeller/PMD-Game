@@ -13,7 +13,7 @@ namespace DialogueSystem.Localization
 
             if (Db != null)
             {
-                Debug.Log($"Localization system loaded: {Db.data.Count} entries");
+                Debug.Log($"Localization system loaded: {Db.Data.Count} entries");
             }
         }
 

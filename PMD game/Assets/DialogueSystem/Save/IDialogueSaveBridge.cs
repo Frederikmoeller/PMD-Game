@@ -13,10 +13,10 @@ namespace DialogueSystem.Save
     [Serializable]
     public class DialogueSaveData
     {
-        public Dictionary<string, object> variables = new();
-        public Dictionary<string, string> dialogueStates = new();
-        public Dictionary<string, bool> choicesMade = new();
+        public Dictionary<string, object> Variables = new();
+        public Dictionary<string, string> DialogueStates = new();
+        public Dictionary<string, bool> ChoicesMade = new();
 
-        public bool IsEmpty => variables.Count == 0 && dialogueStates.Count == 0 && choicesMade.Count == 0;
+        public bool IsEmpty => Variables.Count == 0 && DialogueStates.Count == 0 && ChoicesMade.Count == 0;
     }
 }

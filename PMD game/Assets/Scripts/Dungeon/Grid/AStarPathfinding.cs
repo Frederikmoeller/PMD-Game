@@ -16,8 +16,8 @@ public class AStarPathfinding
         new Vector2Int(-1, -1)   // Down-Left
     };
     
-    private const int STRAIGHT_COST = 10;
-    private const int DIAGONAL_COST = 14;
+    private const int StraightCost = 10;
+    private const int DiagonalCost = 14;
     
     public AStarPathfinding(DungeonGrid grid)
     {
@@ -138,7 +138,7 @@ public class AStarPathfinding
                 if (closedSet.Contains(neighborNode))
                     continue;
                 
-                int moveCost = IsDiagonal(direction) ? DIAGONAL_COST : STRAIGHT_COST;
+                int moveCost = IsDiagonal(direction) ? DiagonalCost : StraightCost;
                 int newGCost = currentNode.GCost + moveCost;
                 
                 Node existingNode = openSet.Find(n => n.Position.Equals(neighborPos));
@@ -300,7 +300,7 @@ public class AStarPathfinding
         // Chebyshev distance for 8-direction movement
         int dx = Mathf.Abs(a.x - b.x);
         int dy = Mathf.Abs(a.y - b.y);
-        return Mathf.Max(dx, dy) * STRAIGHT_COST;
+        return Mathf.Max(dx, dy) * StraightCost;
     }
     
     private List<Vector2Int> CalculatePath(Node endNode)

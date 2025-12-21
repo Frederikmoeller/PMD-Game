@@ -25,20 +25,20 @@ namespace DialogueSystem.Save
 
         public static void SaveVariable(string key, object value)
         {
-            _pendingSaveData.variables[key] = value;
+            _pendingSaveData.Variables[key] = value;
             TryFlushToBridge();
         }
 
         public static void SaveDialogueState(string dialogueId, string nodeId)
         {
-            _pendingSaveData.dialogueStates[dialogueId] = nodeId;
+            _pendingSaveData.DialogueStates[dialogueId] = nodeId;
             TryFlushToBridge();
         }
 
         public static void SaveChoice(string dialogueId, string choiceId)
         {
             string choiceKey = $"{dialogueId}_{choiceId}";
-            _pendingSaveData.choicesMade[choiceKey] = true;
+            _pendingSaveData.ChoicesMade[choiceKey] = true;
             TryFlushToBridge();
         }
 
@@ -46,32 +46,32 @@ namespace DialogueSystem.Save
         {
             foreach (var kvp in variables)
             {
-                _pendingSaveData.variables[kvp.Key] = kvp.Value;
+                _pendingSaveData.Variables[kvp.Key] = kvp.Value;
             }
             TryFlushToBridge();
         }
 
         public static object LoadVariable(string key)
         {
-            return _pendingSaveData.variables.ContainsKey(key) ? _pendingSaveData.variables[key] : null;
+            return _pendingSaveData.Variables.ContainsKey(key) ? _pendingSaveData.Variables[key] : null;
         }
 
         public static string LoadDialogueState(string dialogueId)
         {
-            return _pendingSaveData.dialogueStates.ContainsKey(dialogueId)
-                ? _pendingSaveData.dialogueStates[dialogueId]
+            return _pendingSaveData.DialogueStates.ContainsKey(dialogueId)
+                ? _pendingSaveData.DialogueStates[dialogueId]
                 : "";
         }
 
         public static bool WasChoiceMade(string dialogueId, string choiceId)
         {
             string choiceKey = $"{dialogueId}_{choiceId}";
-            return _pendingSaveData.choicesMade.ContainsKey(choiceKey) && _pendingSaveData.choicesMade[choiceKey];
+            return _pendingSaveData.ChoicesMade.ContainsKey(choiceKey) && _pendingSaveData.ChoicesMade[choiceKey];
         }
 
         public static Dictionary<string, object> LoadAllVariables()
         {
-            return new Dictionary<string, object>(_pendingSaveData.variables);
+            return new Dictionary<string, object>(_pendingSaveData.Variables);
         }
 
         public static void ClearAllData()

@@ -8,7 +8,7 @@ public enum EntityType
     Player,
     Enemy,
     Item,
-    NPC,
+    Npc,
     Decoration
 }
 
@@ -20,12 +20,12 @@ public enum StatusEffectType
     Burn,
     Paralysis,
     Sleep,
-    Buff_Attack,
-    Buff_Defense,
-    Buff_Speed,
-    Debuff_Attack,
-    Debuff_Defense,
-    Debuff_Speed
+    BuffAttack,
+    BuffDefense,
+    BuffSpeed,
+    DebuffAttack,
+    DebuffDefense,
+    DebuffSpeed
 }
 
 [Serializable]

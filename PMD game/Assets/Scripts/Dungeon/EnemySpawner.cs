@@ -112,7 +112,7 @@ public class EnemySpawner : MonoBehaviour
     {
         if (DungeonTemplate.Enemies.Count == 0) return;
 
-        CharacterPresetSO enemyPrefab = DungeonTemplate.Enemies[Random.Range(0, DungeonTemplate.Enemies.Count - 1)];
+        CharacterPresetSo enemyPrefab = DungeonTemplate.Enemies[Random.Range(0, DungeonTemplate.Enemies.Count - 1)];
         // Create parent if needed
         if (EnemyParent == null)
         {

@@ -1,5 +1,6 @@
 using System.Collections;
 using DialogueSystem;
+using GameSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -64,6 +65,44 @@ public class PlayerController : MonoBehaviour
         _player.OnHealthChanged += OnHealthChanged;
     }
     
+    private void OnEnable()
+    {
+        if (GameManager.Instance?.Input != null)
+        {
+            GameManager.Instance.Input.OnMoveInput += HandleMoveInput;
+            GameManager.Instance.Input.OnInteractInput += HandleInteractInput;
+            GameManager.Instance.Input.OnAttackInput += HandleSprintInput;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (GameManager.Instance?.Input != null)
+        {
+            GameManager.Instance.Input.OnMoveInput -= HandleMoveInput;
+            GameManager.Instance.Input.OnInteractInput -= HandleInteractInput;
+            GameManager.Instance.Input.OnAttackInput -= HandleSprintInput;
+        }
+    }
+    
+    private void HandleMoveInput(Vector2Int direction)
+    {
+        if (GameManager.Instance.IsGamePaused) return;
+        if (GameManager.Instance.Dialogue.IsDialogueActive) return;
+    }
+
+    private void HandleInteractInput()
+    {
+        if (GameManager.Instance.IsGamePaused) return;
+        if (GameManager.Instance.Dialogue.IsDialogueActive) return;
+    }
+
+    private void HandleSprintInput()
+    {
+        if (GameManager.Instance.IsGamePaused) return;
+        if (GameManager.Instance.Dialogue.IsDialogueActive) return;
+    }
+    
     void Update()
     {
         if (!CanAct()) return;
@@ -75,7 +114,7 @@ public class PlayerController : MonoBehaviour
         // Update sprint state
         UpdateSprintState();
         
-        if (GameManager.Instance?.IsGridBased == true)
+        if (GameManager.Instance?.Dungeon.IsInDungeon == true)
         {
             // Grid-based movement (dungeon)
             if (!_player.IsMoving)
@@ -95,7 +134,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         // Skip free movement if in grid mode
-        if (GameManager.Instance?.IsGridBased == true) return;
+        if (GameManager.Instance?.Dungeon.IsInDungeon == true) return;
         if (!CanAct()) return;
         
         HandleFreeMovement();
@@ -170,7 +209,7 @@ public class PlayerController : MonoBehaviour
     {
         _isSprinting = true;
         
-        if (GameManager.Instance?.IsGridBased == true)
+        if (GameManager.Instance?.Dungeon.IsInDungeon == true)
         {
             _player.MoveSpeed = GridMoveSpeed * SprintMultiplier;
         }
@@ -181,7 +220,7 @@ public class PlayerController : MonoBehaviour
     {
         _isSprinting = false;
         
-        if (GameManager.Instance?.IsGridBased == true)
+        if (GameManager.Instance?.Dungeon.IsInDungeon == true)
         {
             _player.MoveSpeed = GridMoveSpeed;
         }
@@ -198,7 +237,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector2Int direction = Vector2Int.RoundToInt(_lastMoveDirection);
         
-        if (GameManager.Instance?.IsGridBased == true)
+        if (GameManager.Instance?.Dungeon.IsInDungeon == true)
         {
             TryGridInteraction(direction);
         }
@@ -245,8 +284,8 @@ public class PlayerController : MonoBehaviour
                 }
                 break;
                 
-            case EntityType.NPC:
-                TalkToNPC(occupant);
+            case EntityType.Npc:
+                TalkToNpc(occupant);
                 break;
                 
             default:
@@ -320,9 +359,9 @@ public class PlayerController : MonoBehaviour
     {
         // Check for NPC
         var npc = target.GetComponent<GridEntity>();
-        if (npc != null && npc.Type == EntityType.NPC)
+        if (npc != null && npc.Type == EntityType.Npc)
         {
-            TalkToNPC(npc);
+            TalkToNpc(npc);
             return;
         }
         
@@ -331,12 +370,12 @@ public class PlayerController : MonoBehaviour
         interactable?.Interact(gameObject);
     }
     
-    private void TalkToNPC(GridEntity npc)
+    private void TalkToNpc(GridEntity npc)
     {
-        var npcDialogue = npc.GetComponent<NPCController>();
-        if (npcDialogue != null && npcDialogue.dialogueData != null)
+        var npcDialogue = npc.GetComponent<NpcController>();
+        if (npcDialogue != null && npcDialogue.DialogueData != null)
         {
-            DialogueManager.Instance.StartDialogue(npcDialogue.dialogueData);
+            DialogueManager.Instance.StartDialogue(npcDialogue.DialogueData);
         }
         else
         {
@@ -394,7 +433,6 @@ public class PlayerController : MonoBehaviour
     private void OnPlayerDeath()
     {
         Debug.Log("Player died");
-        GameManager.Instance?.GameOver(false);
     }
     
     // ========== PUBLIC METHODS ==========

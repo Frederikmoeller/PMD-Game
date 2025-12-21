@@ -1,157 +1,297 @@
-// PopupManager.cs
+using System;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 
-public class PopupManager : MonoBehaviour
+namespace GameSystem
 {
-    [Header("Popup References")]
-    public GameObject inventoryPopup;
-    public GameObject pauseMenuPopup;
-    public GameObject deathScreenPopup;
-    public GameObject confirmationPopup;
-    public GameObject loadingScreen;
-    
-    [Header("Confirmation Popup Components")]
-    public Text popupTitleText;
-    public Text popupMessageText;
-    public Button popupConfirmButton;
-    public Button popupCancelButton;
-    
-    [Header("Inventory Components")]
-    public Transform inventoryItemContainer;
-    public GameObject inventoryItemPrefab;
-    
-    private Action _currentConfirmAction;
-    private Action _currentCancelAction;
-    private PlayerStats _playerStats;
-    
-    public void Initialize(PlayerStats playerStats = null)
+    public class PopupManager : MonoBehaviour
     {
-        _playerStats = playerStats;
+        [Header("Popup References")]
+        [SerializeField] private GameObject confirmationPopup;
+        [SerializeField] private GameObject messagePopup;
+        [SerializeField] private GameObject inventoryPopup;
+        [SerializeField] private GameObject questLogPopup;
         
-        // Hide all popups initially
-        HideAllPopups();
+        [Header("Confirmation Popup")]
+        [SerializeField] private TextMeshProUGUI confirmationTitle;
+        [SerializeField] private TextMeshProUGUI confirmationMessage;
+        [SerializeField] private Button confirmButton;
+        [SerializeField] private Button cancelButton;
         
-        // Setup confirmation button listeners
-        if (popupConfirmButton != null)
-            popupConfirmButton.onClick.AddListener(OnPopupConfirmClicked);
+        [Header("Message Popup")]
+        [SerializeField] private TextMeshProUGUI messageText;
+        [SerializeField] private float messageDuration = 3f;
         
-        if (popupCancelButton != null)
-            popupCancelButton.onClick.AddListener(OnPopupCancelClicked);
-    }
-    
-    public void ShowConfirmation(string title, string message, Action onConfirm, Action onCancel = null)
-    {
-        if (confirmationPopup == null) return;
+        [Header("Inventory UI")]
+        [SerializeField] private Transform inventoryContent;
+        [SerializeField] private GameObject inventoryItemPrefab;
+        [SerializeField] private TextMeshProUGUI inventoryCapacityText;
         
-        _currentConfirmAction = onConfirm;
-        _currentCancelAction = onCancel;
+        [Header("Equipment UI")]
+        [SerializeField] private Image weaponIcon;
+        [SerializeField] private Image armorIcon;
+        [SerializeField] private Image helmetIcon;
+        [SerializeField] private Image bootsIcon;
+        [SerializeField] private Image accessory1Icon;
+        [SerializeField] private Image accessory2Icon;
         
-        if (popupTitleText != null)
-            popupTitleText.text = title;
-        if (popupMessageText != null)
-            popupMessageText.text = message;
+        [Header("Quest Log UI")]
+        [SerializeField] private Transform questLogContent;
+        [SerializeField] private GameObject questEntryPrefab;
         
-        confirmationPopup.SetActive(true);
-    }
-    
-    public void ShowStairsPopup(int nextFloor, Action onConfirm, Action onCancel = null)
-    {
-        ShowConfirmation(
-            $"Floor {nextFloor}",
-            GetFloorDescription(nextFloor),
-            onConfirm,
-            onCancel
-        );
-    }
-    
-    public void ToggleInventory()
-    {
-        if (inventoryPopup == null) return;
+        // State
+        private PlayerStats _playerStats;
+        private Queue<string> _messageQueue = new Queue<string>();
+        private bool _isShowingMessage = false;
         
-        bool show = !inventoryPopup.activeSelf;
-        inventoryPopup.SetActive(show);
-        
-        if (show && _playerStats != null)
+        public void Initialize()
         {
-            RefreshInventoryUI();
-        }
-    }
-    
-    public void TogglePauseMenu()
-    {
-        if (pauseMenuPopup == null) return;
-        
-        bool show = !pauseMenuPopup.activeSelf;
-        pauseMenuPopup.SetActive(show);
-    }
-    
-    public void ShowDeathScreen()
-    {
-        if (deathScreenPopup != null)
-            deathScreenPopup.SetActive(true);
-    }
-    
-    public void ShowLoadingScreen(bool show)
-    {
-        if (loadingScreen != null)
-            loadingScreen.SetActive(show);
-    }
-    
-    public void HideAllPopups()
-    {
-        if (inventoryPopup != null) inventoryPopup.SetActive(false);
-        if (pauseMenuPopup != null) pauseMenuPopup.SetActive(false);
-        if (deathScreenPopup != null) deathScreenPopup.SetActive(false);
-        if (confirmationPopup != null) confirmationPopup.SetActive(false);
-    }
-    
-    private void RefreshInventoryUI()
-    {
-        if (_playerStats == null || inventoryItemContainer == null || inventoryItemPrefab == null)
-            return;
-        
-        foreach (Transform child in inventoryItemContainer)
-        {
-            Destroy(child.gameObject);
+            // Initialize popups as hidden
+            if (confirmationPopup != null) confirmationPopup.SetActive(false);
+            if (messagePopup != null) messagePopup.SetActive(false);
+            if (inventoryPopup != null) inventoryPopup.SetActive(false);
+            if (questLogPopup != null) questLogPopup.SetActive(false);
         }
         
-        // Add current inventory items
-        foreach (var item in _playerStats.Inventory)
+        public void Initialize(PlayerStats playerStats)
         {
-            var itemUI = Instantiate(inventoryItemPrefab, inventoryItemContainer);
-            var itemComponent = itemUI.GetComponent<InventoryItemUI>();
-            if (itemComponent != null)
+            _playerStats = playerStats;
+            Initialize();
+        }
+        
+        // ===== CONFIRMATION POPUP =====
+        public void ShowConfirmation(string title, string message, Action onConfirm, Action onCancel = null)
+        {
+            if (confirmationPopup == null) return;
+            
+            confirmationPopup.SetActive(true);
+            
+            if (confirmationTitle != null) confirmationTitle.text = title;
+            if (confirmationMessage != null) confirmationMessage.text = message;
+            
+            // Clear previous listeners
+            confirmButton.onClick.RemoveAllListeners();
+            cancelButton.onClick.RemoveAllListeners();
+            
+            // Add new listeners
+            confirmButton.onClick.AddListener(() =>
             {
-                itemComponent.Setup(item);
+                confirmationPopup.SetActive(false);
+                onConfirm?.Invoke();
+            });
+            
+            cancelButton.onClick.AddListener(() =>
+            {
+                confirmationPopup.SetActive(false);
+                onCancel?.Invoke();
+            });
+        }
+        
+        // ===== MESSAGE POPUP =====
+        public void ShowMessage(string message, float duration = 3f)
+        {
+            _messageQueue.Enqueue(message);
+            
+            if (!_isShowingMessage)
+            {
+                StartCoroutine(ShowMessageCoroutine(duration));
             }
         }
-    }
-    
-    private void OnPopupConfirmClicked()
-    {
-        if (_currentConfirmAction != null)
-            _currentConfirmAction.Invoke();
         
-        if (confirmationPopup != null)
-            confirmationPopup.SetActive(false);
-    }
-    
-    private void OnPopupCancelClicked()
-    {
-        if (_currentCancelAction != null)
-            _currentCancelAction.Invoke();
+        private System.Collections.IEnumerator ShowMessageCoroutine(float duration)
+        {
+            _isShowingMessage = true;
+            
+            while (_messageQueue.Count > 0)
+            {
+                string message = _messageQueue.Dequeue();
+                
+                if (messagePopup != null && messageText != null)
+                {
+                    messagePopup.SetActive(true);
+                    messageText.text = message;
+                    
+                    yield return new WaitForSeconds(duration);
+                    
+                    messagePopup.SetActive(false);
+                }
+                
+                yield return null;
+            }
+            
+            _isShowingMessage = false;
+        }
         
-        if (confirmationPopup != null)
-            confirmationPopup.SetActive(false);
-    }
-    
-    private string GetFloorDescription(int floor)
-    {
-        if (floor <= 5) return "A relatively safe area for beginners.";
-        if (floor <= 10) return "Deeper levels with stronger enemies.";
-        if (floor <= 15) return "Challenging depths with rare treasures.";
-        return "Dangerous territory. Proceed with caution.";
+        // ===== INVENTORY =====
+        public void ShowInventory(bool show)
+        {
+            if (inventoryPopup != null)
+            {
+                inventoryPopup.SetActive(show);
+                
+                if (show)
+                {
+                    RefreshInventoryUI();
+                }
+            }
+        }
+        
+        public bool ToggleInventory()
+        {
+            if (inventoryPopup == null) return false;
+            
+            bool isOpen = !inventoryPopup.activeSelf;
+            inventoryPopup.SetActive(isOpen);
+            
+            if (isOpen)
+            {
+                RefreshInventoryUI();
+            }
+            
+            return isOpen;
+        }
+        
+        public void UpdateInventoryUI(List<InventorySlot> inventory)
+        {
+            if (!inventoryPopup.activeSelf) return;
+            RefreshInventoryUI(inventory);
+        }
+        
+        private void RefreshInventoryUI(List<InventorySlot> inventory = null)
+        {
+            if (inventoryContent == null || inventoryItemPrefab == null) return;
+            
+            // Clear existing items
+            foreach (Transform child in inventoryContent)
+            {
+                Destroy(child.gameObject);
+            }
+            
+            // Get inventory from GameManager if not provided
+            inventory ??= GameManager.Instance.Inventory?.Inventory;
+            
+            if (inventory == null) return;
+            
+            // Create inventory items
+            foreach (var slot in inventory)
+            {
+                if (slot.ItemData == null) continue;
+                
+                GameObject itemObj = Instantiate(inventoryItemPrefab, inventoryContent);
+                InventoryItemUI itemUI = itemObj.GetComponent<InventoryItemUI>();
+                
+                if (itemUI != null)
+                {
+                    itemUI.Initialize(slot.ItemData, slot.Quantity, OnItemClicked);
+                }
+            }
+            
+            // Update capacity text
+            if (inventoryCapacityText != null)
+            {
+                int current = inventory.Count;
+                int max = GameManager.Instance.Inventory?.MaxInventorySize ?? 20;
+                inventoryCapacityText.text = $"{current}/{max}";
+            }
+        }
+        
+        private void OnItemClicked(ItemData itemData)
+        {
+            // Handle item click (use, equip, etc.)
+            ShowConfirmation($"Use {itemData.ItemName}", 
+                $"What would you like to do with {itemData.ItemName}?",
+                () => GameManager.Instance.Inventory?.UseItem(itemData),
+                () => GameManager.Instance.Inventory?.EquipItem(itemData));
+        }
+        
+        // ===== EQUIPMENT =====
+        public void UpdateEquipmentUI(EquipmentSlots equipment)
+        {
+            if (equipment == null) return;
+            
+            UpdateEquipmentIcon(weaponIcon, equipment.Weapon);
+            UpdateEquipmentIcon(armorIcon, equipment.Armor);
+            UpdateEquipmentIcon(helmetIcon, equipment.Helmet);
+            UpdateEquipmentIcon(bootsIcon, equipment.Boots);
+            UpdateEquipmentIcon(accessory1Icon, equipment.Accessory1);
+            UpdateEquipmentIcon(accessory2Icon, equipment.Accessory2);
+        }
+        
+        private void UpdateEquipmentIcon(Image icon, ItemData itemData)
+        {
+            if (icon == null) return;
+            
+            if (itemData != null && itemData.Icon != null)
+            {
+                icon.sprite = itemData.Icon;
+                icon.color = Color.white;
+            }
+            else
+            {
+                icon.sprite = null;
+                icon.color = new Color(0.2f, 0.2f, 0.2f, 0.5f);
+            }
+        }
+        
+        // ===== QUEST LOG =====
+        public void ToggleQuestLog()
+        {
+            if (questLogPopup == null) return;
+            
+            bool isOpen = !questLogPopup.activeSelf;
+            questLogPopup.SetActive(isOpen);
+            
+            if (isOpen)
+            {
+                RefreshQuestLog();
+            }
+        }
+        
+        public void HideQuestLog()
+        {
+            if (questLogPopup != null) questLogPopup.SetActive(false);
+        }
+        
+        public void UpdateQuestLog(List<ActiveQuest> quests)
+        {
+            if (!questLogPopup.activeSelf) return;
+            RefreshQuestLog(quests);
+        }
+        
+        private void RefreshQuestLog(List<ActiveQuest> quests = null)
+        {
+            if (questLogContent == null || questEntryPrefab == null) return;
+            
+            // Clear existing entries
+            foreach (Transform child in questLogContent)
+            {
+                Destroy(child.gameObject);
+            }
+            
+            // Get quests from GameManager if not provided
+            quests ??= GameManager.Instance.Quest?.ActiveQuests;
+            
+            if (quests == null || quests.Count == 0) return;
+            
+            // Create quest entries
+            foreach (var quest in quests)
+            {
+                GameObject questObj = Instantiate(questEntryPrefab, questLogContent);
+                QuestEntryUI questUI = questObj.GetComponent<QuestEntryUI>();
+                
+                if (questUI != null)
+                {
+                    questUI.Initialize(quest);
+                }
+            }
+        }
+        
+        // ===== CLEANUP =====
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
     }
 }

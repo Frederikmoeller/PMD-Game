@@ -4,20 +4,20 @@ namespace SaveSystem
 {
     public enum SaveFileType
     {
-        JSON,
+        Json,
     }
 
     public enum SaveEncryption
     {
         None,
-        SimpleXOR,
-        AES
+        SimpleXor,
+        Aes
     }
     
     [Serializable]
     public class SaveSystemSettings
     {
-        public SaveFileType DefaultFileType = SaveFileType.JSON;
+        public SaveFileType DefaultFileType = SaveFileType.Json;
         public SaveEncryption DefaultEncryption = SaveEncryption.None;
         public string AutoSaveSlot = "AutoSave";
         public float AutoSaveInterval = 300f;

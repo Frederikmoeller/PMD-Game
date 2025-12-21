@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace DialogueSystem.Localization
 {
-    public class XMLloader : IDialogueDataLoader
+    public class XmLloader : IDialogueDataLoader
     {
         public bool CanLoad(string filePath)
         {
@@ -52,7 +52,7 @@ namespace DialogueSystem.Localization
                         continue;
                     }
                     
-                    db.data[key] = new Dictionary<string, string>();
+                    db.Data[key] = new Dictionary<string, string>();
                     
                     foreach (XmlNode translationNode in entryNode.SelectNodes("translation"))
                     {
@@ -61,7 +61,7 @@ namespace DialogueSystem.Localization
                         
                         if (!string.IsNullOrEmpty(lang))
                         {
-                            db.data[key][lang] = text;
+                            db.Data[key][lang] = text;
                         }
                     }
                     
@@ -72,13 +72,13 @@ namespace DialogueSystem.Localization
                         {
                             if (attr.Name != "key" && attr.Name != "id")
                             {
-                                db.data[key][attr.Name] = attr.Value;
+                                db.Data[key][attr.Name] = attr.Value;
                             }
                         }
                     }
                 }
                 
-                Debug.Log($"XML loaded successfully: {db.data.Count} keys");
+                Debug.Log($"XML loaded successfully: {db.Data.Count} keys");
             }
             catch (System.Exception e)
             {

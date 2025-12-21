@@ -5,32 +5,32 @@ using DialogueSystem.Data;
 
 namespace DialogueSystem.UI
 {
-    public class DialogueVariablesDebugUI : MonoBehaviour
+    public class DialogueVariablesDebugUi : MonoBehaviour
     {
-        [SerializeField] private bool showInBuild = false;
-        [SerializeField] private TMP_Text debugText;
-        [SerializeField] private float refreshRate = 1f;
+        [SerializeField] private bool _showInBuild = false;
+        [SerializeField] private TMP_Text _debugText;
+        [SerializeField] private float _refreshRate = 1f;
         
         private void Start()
         {
-            if (!showInBuild && !Application.isEditor)
+            if (!_showInBuild && !Application.isEditor)
             {
                 gameObject.SetActive(false);
                 return;
             }
             
-            InvokeRepeating(nameof(UpdateDebugDisplay), 0f, refreshRate);
+            InvokeRepeating(nameof(UpdateDebugDisplay), 0f, _refreshRate);
         }
         
         private void UpdateDebugDisplay()
         {
-            if (debugText != null)
+            if (_debugText != null)
             {
-                debugText.text = "Dialogue Variables:\n";
+                _debugText.text = "Dialogue Variables:\n";
                 var variables = DialogueVariables.GetAll();
                 foreach (var kvp in variables)
                 {
-                    debugText.text += $"{kvp.Key}: {kvp.Value}\n";
+                    _debugText.text += $"{kvp.Key}: {kvp.Value}\n";
                 }
             }
         }

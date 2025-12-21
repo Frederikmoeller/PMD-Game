@@ -48,11 +48,11 @@ namespace DialogueSystem.Editor
             // Find start node and save its connection
             if (graphView.nodes.ToList().FirstOrDefault(n => n is StartNodeView) is StartNodeView startNode)
             {
-                asset.startNodeId = startNode.StartNodeId;
+                asset.StartNodeId = startNode.StartNodeId;
             }
             else
             {
-                asset.startNodeId = null; // No start node or no connection
+                asset.StartNodeId = null; // No start node or no connection
             }
 
             foreach (var nv in nodeViews)
@@ -64,7 +64,7 @@ namespace DialogueSystem.Editor
                 lines.Add(data);
             }
 
-            asset.nodes = lines;
+            asset.Nodes = lines;
             EditorUtility.SetDirty(asset);
         }
     }

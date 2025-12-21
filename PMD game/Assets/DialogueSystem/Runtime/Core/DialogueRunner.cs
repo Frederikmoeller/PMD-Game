@@ -26,7 +26,7 @@ namespace DialogueSystem
             }
             else
             {
-                _currentNode = FindNode(asset.startNodeId);
+                _currentNode = FindNode(asset.StartNodeId);
                 DisplayNode();
             }
         }
@@ -90,11 +90,11 @@ namespace DialogueSystem
 
         DialogueLine FindNode(string id)
         {
-            if (string.IsNullOrEmpty(id) || _asset == null || _asset.nodes == null)
+            if (string.IsNullOrEmpty(id) || _asset == null || _asset.Nodes == null)
                 return null;
     
             // Always search by primary ID first
-            var node = _asset.nodes.Find(n => n.Guid == id);
+            var node = _asset.Nodes.Find(n => n.Guid == id);
 
             return node;
         }
@@ -155,7 +155,7 @@ namespace DialogueSystem
                     }
                 }
                 // No saved state, start normally
-                _currentNode = FindNode(_asset.startNodeId);
+                _currentNode = FindNode(_asset.StartNodeId);
                 DisplayNode();
             }
         }

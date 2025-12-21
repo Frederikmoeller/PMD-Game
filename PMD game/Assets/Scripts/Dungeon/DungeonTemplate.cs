@@ -7,7 +7,7 @@ public class DungeonTemplate : ScriptableObject
     public int Floors;
     public string Name;
     public string Description;
-    public List<CharacterPresetSO> Enemies;
+    public List<CharacterPresetSo> Enemies;
     public List<ItemData> Items;
     public int[] EnemyLevels;
     public AudioClip DungeonTheme;

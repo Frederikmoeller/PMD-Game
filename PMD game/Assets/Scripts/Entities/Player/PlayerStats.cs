@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GameSystem;
 using SaveSystem;
 using UnityEngine;
 using UnityEngine.Events;
@@ -76,13 +77,7 @@ public class PlayerStats : GridEntity  // <-- INHERIT from GridEntity
         // Don't call base if you want different player death handling
         Debug.Log("Player died!");
         OnPlayerDeath?.Invoke();
-        
-        // Trigger game over
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.GameOver(false);
-        }
-        
+
         // Player doesn't get destroyed - handled by GameManager
         gameObject.SetActive(false);
     }

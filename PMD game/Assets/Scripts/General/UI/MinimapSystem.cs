@@ -5,34 +5,34 @@ using System.Collections.Generic;
 public class MinimapSystem : MonoBehaviour
 {
     [Header("Minimap Display")]
-    public RawImage minimapDisplay;
-    public RectTransform minimapContainer;
+    public RawImage MinimapDisplay;
+    public RectTransform MinimapContainer;
     
     [Header("Minimap Settings")]
-    public int pixelsPerTile = 4;
-    public Color wallColor = Color.gray;
-    public Color floorColor = new Color(0.1f, 0.1f, 0.1f, 0.7f);
-    public Color unexploredColor = Color.black;
-    public Color playerColor = Color.green;
-    public Color enemyColor = Color.red;
-    public Color stairsColor = Color.cyan;
-    public Color effectColor = Color.blue;
+    public int PixelsPerTile = 4;
+    public Color WallColor = Color.gray;
+    public Color FloorColor = new Color(0.1f, 0.1f, 0.1f, 0.7f);
+    public Color UnexploredColor = Color.black;
+    public Color PlayerColor = Color.green;
+    public Color EnemyColor = Color.red;
+    public Color StairsColor = Color.cyan;
+    public Color EffectColor = Color.blue;
     public Color ItemColor = Color.yellow;
     
     [Header("Display Settings")]
-    public float maxDisplaySize = 400f;
-    public bool maintainAspectRatio = true;
-    public Vector2 fixedDisplaySize = new Vector2(300, 200);
+    public float MaxDisplaySize = 400f;
+    public bool MaintainAspectRatio = true;
+    public Vector2 FixedDisplaySize = new Vector2(300, 200);
     
     [Header("Fog of War")]
-    public bool useFogOfWar = true;
-    public Color exploredFloorColor = new Color(0.3f, 0.3f, 0.3f, 0.8f);
-    public int visionRadius = 5;
+    public bool UseFogOfWar = true;
+    public Color ExploredFloorColor = new Color(0.3f, 0.3f, 0.3f, 0.8f);
+    public int VisionRadius = 5;
     
     [Header("Outline Settings")]
-    public bool drawWallOutlines = true;
-    public Color wallOutlineColor = Color.white;
-    public int outlineThickness = 1;
+    public bool DrawWallOutlines = true;
+    public Color WallOutlineColor = Color.white;
+    public int OutlineThickness = 1;
 
     [Header("Optimization")] 
     public bool IncrementalUpdates = true;
@@ -40,7 +40,7 @@ public class MinimapSystem : MonoBehaviour
 
     [Header("Room Discorvery")] 
     public bool AutoRevealsRooms = true;
-    public Color discoveredRoomColor = new Color(0.4f, 0.4f, 0.4f, 0.9f);
+    public Color DiscoveredRoomColor = new Color(0.4f, 0.4f, 0.4f, 0.9f);
     
     private Texture2D _minimapTexture;
     private bool[,] _exploredTiles;
@@ -56,7 +56,7 @@ public class MinimapSystem : MonoBehaviour
 
     public void Initialize()
     {
-        if (minimapDisplay == null)
+        if (MinimapDisplay == null)
         {
             Debug.LogWarning("Minimap display RawImage not set!");
             return;
@@ -67,7 +67,7 @@ public class MinimapSystem : MonoBehaviour
     
     public void GenerateMinimap(DungeonGrid grid)
     {
-        if (grid == null || minimapDisplay == null) return;
+        if (grid == null || MinimapDisplay == null) return;
         
         _currentGrid = grid;
         
@@ -78,8 +78,8 @@ public class MinimapSystem : MonoBehaviour
         _updateQueue.Clear();
         
         // Calculate texture size
-        int texWidth = grid.Width * pixelsPerTile;
-        int texHeight = grid.Height * pixelsPerTile;
+        int texWidth = grid.Width * PixelsPerTile;
+        int texHeight = grid.Height * PixelsPerTile;
         
         // Create texture
         if (_minimapTexture == null || _minimapTexture.width != texWidth || _minimapTexture.height != texHeight)
@@ -95,15 +95,15 @@ public class MinimapSystem : MonoBehaviour
         // Fill with unexplored color
         Color[] fillColors = new Color[texWidth * texHeight];
         for (int i = 0; i < fillColors.Length; i++)
-            fillColors[i] = unexploredColor;
+            fillColors[i] = UnexploredColor;
         
         _minimapTexture.SetPixels(fillColors);
         _minimapTexture.Apply();
         
-        minimapDisplay.texture = _minimapTexture;
+        MinimapDisplay.texture = _minimapTexture;
         
         // Size container
-        if (minimapContainer != null)
+        if (MinimapContainer != null)
             SizeMinimapContainer(texWidth, texHeight);
         
         Debug.Log($"Minimap created: {texWidth}x{texHeight}");
@@ -252,9 +252,9 @@ public class MinimapSystem : MonoBehaviour
 
     private void SizeMinimapContainer(int textureWidth, int textureHeight)
     {
-        if (minimapContainer == null || minimapContainer.parent == null) return;
+        if (MinimapContainer == null || MinimapContainer.parent == null) return;
     
-        RectTransform parentRect = minimapContainer.parent as RectTransform;
+        RectTransform parentRect = MinimapContainer.parent as RectTransform;
         if (parentRect == null) return;
     
         Vector2 parentSize = parentRect.rect.size;
@@ -277,8 +277,8 @@ public class MinimapSystem : MonoBehaviour
         float displayWidth = textureWidth * scale;
         float displayHeight = textureHeight * scale;
     
-        minimapContainer.sizeDelta = new Vector2(displayWidth, displayHeight);
-        minimapContainer.anchoredPosition = Vector2.zero;
+        MinimapContainer.sizeDelta = new Vector2(displayWidth, displayHeight);
+        MinimapContainer.anchoredPosition = Vector2.zero;
     }
     
     public void UpdatePlayerPosition(Vector2Int playerPos)
@@ -308,7 +308,7 @@ public class MinimapSystem : MonoBehaviour
     
     private void UpdateExploration(Vector2Int center)
     {
-        if (!useFogOfWar) return;
+        if (!UseFogOfWar) return;
         CheckRoomDiscovery(center);
         
         HashSet<Vector2Int> changedTiles = new HashSet<Vector2Int>();
@@ -327,7 +327,7 @@ public class MinimapSystem : MonoBehaviour
         }
         
         // Mark tiles in vision radius
-        int radius = visionRadius;
+        int radius = VisionRadius;
         
         for (int x = center.x - radius; x <= center.x + radius; x++)
         {
@@ -418,26 +418,26 @@ public class MinimapSystem : MonoBehaviour
     {
         TileType tileType = _currentGrid.Tiles[gridX, gridY].Type;
         bool isWall = tileType == TileType.Wall;
-        bool isExplored = useFogOfWar ? _exploredTiles[gridX, gridY] : true;
-        bool isVisible = useFogOfWar ? _visibleTiles[gridX, gridY] : true;
+        bool isExplored = UseFogOfWar ? _exploredTiles[gridX, gridY] : true;
+        bool isVisible = UseFogOfWar ? _visibleTiles[gridX, gridY] : true;
         
         Color tileColor = GetTileColor(gridX, gridY);
         
         // Draw the tile
-        for (int px = 0; px < pixelsPerTile; px++)
+        for (int px = 0; px < PixelsPerTile; px++)
         {
-            for (int py = 0; py < pixelsPerTile; py++)
+            for (int py = 0; py < PixelsPerTile; py++)
             {
-                int pixelX = gridX * pixelsPerTile + px;
-                int pixelY = gridY * pixelsPerTile + py;
+                int pixelX = gridX * PixelsPerTile + px;
+                int pixelY = gridY * PixelsPerTile + py;
                 
                 Color finalColor = tileColor;
                 
-                if (drawWallOutlines && isWall && isExplored)
+                if (DrawWallOutlines && isWall && isExplored)
                 {
                     if (ShouldDrawOutline(gridX, gridY, px, py))
                     {
-                        finalColor = isVisible ? wallOutlineColor : wallOutlineColor * 0.5f;
+                        finalColor = isVisible ? WallOutlineColor : WallOutlineColor * 0.5f;
                     }
                 }
                 
@@ -452,9 +452,9 @@ public class MinimapSystem : MonoBehaviour
         
         // Instead of marking the tile dirty, directly restore the original pixels
         // This is faster and more precise
-        int centerX = playerPos.x * pixelsPerTile + pixelsPerTile / 2;
-        int centerY = playerPos.y * pixelsPerTile + pixelsPerTile / 2;
-        int markerSize = Mathf.Max(1, pixelsPerTile / 2);
+        int centerX = playerPos.x * PixelsPerTile + PixelsPerTile / 2;
+        int centerY = playerPos.y * PixelsPerTile + PixelsPerTile / 2;
+        int markerSize = Mathf.Max(1, PixelsPerTile / 2);
         
         // Restore the original pixels that were under the marker
         RestoreOriginalPixelsUnderMarker(centerX, centerY, markerSize);
@@ -570,8 +570,8 @@ public class MinimapSystem : MonoBehaviour
     {
         TileType tileType = _currentGrid.Tiles[gridX, gridY].Type;
         bool isWall = tileType == TileType.Wall;
-        bool isExplored = !useFogOfWar || _exploredTiles[gridX, gridY];
-        bool isVisible = !useFogOfWar || _visibleTiles[gridX, gridY];
+        bool isExplored = !UseFogOfWar || _exploredTiles[gridX, gridY];
+        bool isVisible = !UseFogOfWar || _visibleTiles[gridX, gridY];
         
         // Get base color
         Color tileColor = GetTileColor(gridX, gridY);
@@ -583,29 +583,29 @@ public class MinimapSystem : MonoBehaviour
         }
         
         // Draw the tile
-        for (int px = 0; px < pixelsPerTile; px++)
+        for (int px = 0; px < PixelsPerTile; px++)
         {
-            for (int py = 0; py < pixelsPerTile; py++)
+            for (int py = 0; py < PixelsPerTile; py++)
             {
-                int pixelX = gridX * pixelsPerTile + px;
-                int pixelY = gridY * pixelsPerTile + py;
+                int pixelX = gridX * PixelsPerTile + px;
+                int pixelY = gridY * PixelsPerTile + py;
                 
                 Color finalColor = tileColor;
                 
                 // Check if this pixel should be an outline
-                if (drawWallOutlines && isWall && isExplored)
+                if (DrawWallOutlines && isWall && isExplored)
                 {
                     // Only draw outlines if adjacent to explored floor
                     if (ShouldDrawOutline(gridX, gridY, px, py))
                     {
                         if (isVisible)
                         {
-                            finalColor = wallOutlineColor;
+                            finalColor = WallOutlineColor;
                         }
                         else
                         {
                             // In fog of war (explored but not visible)
-                            finalColor = wallOutlineColor * 0.5f;
+                            finalColor = WallOutlineColor * 0.5f;
                         }
                     }
                 }
@@ -621,10 +621,10 @@ public class MinimapSystem : MonoBehaviour
         if (!_exploredTiles[gridX, gridY]) return false;
         
         // Check which edge(s) this pixel is on
-        bool onLeftEdge = pixelX < outlineThickness;
-        bool onRightEdge = pixelX >= pixelsPerTile - outlineThickness;
-        bool onBottomEdge = pixelY < outlineThickness;
-        bool onTopEdge = pixelY >= pixelsPerTile - outlineThickness;
+        bool onLeftEdge = pixelX < OutlineThickness;
+        bool onRightEdge = pixelX >= PixelsPerTile - OutlineThickness;
+        bool onBottomEdge = pixelY < OutlineThickness;
+        bool onTopEdge = pixelY >= PixelsPerTile - OutlineThickness;
         
         // Check each direction
         if (onLeftEdge && IsExploredFloorTile(gridX - 1, gridY)) return true;
@@ -657,7 +657,7 @@ public class MinimapSystem : MonoBehaviour
         if (!_currentGrid.InBounds(x, y)) return false;
         
         // Must be explored
-        if (useFogOfWar && !_exploredTiles[x, y]) return false;
+        if (UseFogOfWar && !_exploredTiles[x, y]) return false;
         
         // Must be a floor-type tile
         TileType type = _currentGrid.Tiles[x, y].Type;
@@ -676,14 +676,14 @@ public class MinimapSystem : MonoBehaviour
     private Color GetTileColor(int x, int y)
     {
         if (!_currentGrid.InBounds(x, y))
-            return unexploredColor;
+            return UnexploredColor;
     
         TileType tileType = _currentGrid.Tiles[x, y].Type;
-        bool isExplored = useFogOfWar ? _exploredTiles[x, y] : true;
-        bool isVisible = useFogOfWar ? _visibleTiles[x, y] : true;
+        bool isExplored = UseFogOfWar ? _exploredTiles[x, y] : true;
+        bool isVisible = UseFogOfWar ? _visibleTiles[x, y] : true;
     
         if (!isExplored)
-            return unexploredColor;
+            return UnexploredColor;
     
         // Check if this tile is in a discovered room
         bool inDiscoveredRoom = IsInDiscoveredRoom(x, y);
@@ -692,13 +692,13 @@ public class MinimapSystem : MonoBehaviour
         switch (tileType)
         {
             case TileType.Floor:
-                return floorColor;
+                return FloorColor;
             case TileType.Wall:
-                return wallColor;
+                return WallColor;
             case TileType.Stairs:
-                return stairsColor;
+                return StairsColor;
             case TileType.Effect:
-                return effectColor;
+                return EffectColor;
             default:
                 return Color.black;
         }
@@ -713,9 +713,9 @@ public class MinimapSystem : MonoBehaviour
         // Don't draw if we're currently updating tiles
         if (_isUpdating) return;
         
-        int centerX = _currentPlayerPos.x * pixelsPerTile + pixelsPerTile / 2;
-        int centerY = _currentPlayerPos.y * pixelsPerTile + pixelsPerTile / 2;
-        int markerSize = Mathf.Max(1, pixelsPerTile / 2);
+        int centerX = _currentPlayerPos.x * PixelsPerTile + PixelsPerTile / 2;
+        int centerY = _currentPlayerPos.y * PixelsPerTile + PixelsPerTile / 2;
+        int markerSize = Mathf.Max(1, PixelsPerTile / 2);
         
         // Save the original colors under where we'll draw the marker
         // This ensures we can restore them later
@@ -725,10 +725,10 @@ public class MinimapSystem : MonoBehaviour
         for (int i = -markerSize; i <= markerSize; i++)
         {
             if (centerX + i >= 0 && centerX + i < _minimapTexture.width)
-                _minimapTexture.SetPixel(centerX + i, centerY, playerColor);
+                _minimapTexture.SetPixel(centerX + i, centerY, PlayerColor);
             
             if (centerY + i >= 0 && centerY + i < _minimapTexture.height)
-                _minimapTexture.SetPixel(centerX, centerY + i, playerColor);
+                _minimapTexture.SetPixel(centerX, centerY + i, PlayerColor);
         }
         
         _minimapTexture.Apply();
@@ -738,7 +738,7 @@ public class MinimapSystem : MonoBehaviour
     
     public void RevealRoom(RectInt room)
     {
-        if (!useFogOfWar || _currentGrid == null) return;
+        if (!UseFogOfWar || _currentGrid == null) return;
         
         for (int x = room.xMin; x < room.xMax; x++)
         {
@@ -757,7 +757,7 @@ public class MinimapSystem : MonoBehaviour
     
     public void RevealAll()
     {
-        if (!useFogOfWar || _currentGrid == null) return;
+        if (!UseFogOfWar || _currentGrid == null) return;
         
         for (int x = 0; x < _currentGrid.Width; x++)
         {
@@ -780,9 +780,9 @@ public class MinimapSystem : MonoBehaviour
             _minimapTexture = null;
         }
         
-        if (minimapDisplay != null)
+        if (MinimapDisplay != null)
         {
-            minimapDisplay.texture = null;
+            MinimapDisplay.texture = null;
         }
         
         _currentGrid = null;
@@ -794,16 +794,16 @@ public class MinimapSystem : MonoBehaviour
     
     public void ToggleVisibility(bool visible)
     {
-        if (minimapContainer != null)
+        if (MinimapContainer != null)
         {
-            minimapContainer.gameObject.SetActive(visible);
+            MinimapContainer.gameObject.SetActive(visible);
         }
     }
     
     public void SetDisplaySize(float size)
     {
-        maxDisplaySize = size;
-        if (_minimapTexture != null && minimapContainer != null)
+        MaxDisplaySize = size;
+        if (_minimapTexture != null && MinimapContainer != null)
         {
             SizeMinimapContainer(_minimapTexture.width, _minimapTexture.height);
         }
@@ -811,7 +811,7 @@ public class MinimapSystem : MonoBehaviour
     
     public void SetZoomLevel(int newPixelsPerTile)
     {
-        pixelsPerTile = Mathf.Clamp(newPixelsPerTile, 1, 8);
+        PixelsPerTile = Mathf.Clamp(newPixelsPerTile, 1, 8);
         if (_currentGrid != null)
         {
             GenerateMinimap(_currentGrid);
@@ -823,8 +823,8 @@ public class MinimapSystem : MonoBehaviour
         foreach (var room in _discoveredRooms)
         {
             // Check if the point is within the room bounds (including a 1-tile border for walls)
-            if (x >= room.xMin - 1 && x <= room.xMax && 
-                y >= room.yMin - 1 && y <= room.yMax)
+            if (x >= room.xMin - 1 && x < room.xMax + 1 && 
+                y >= room.yMin - 1 && y < room.yMax + 1)
             {
                 return true;
             }
